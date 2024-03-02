@@ -3,7 +3,7 @@
 * Change IP and Port according to your needs
 */
 #define MQTT_HOST "localhost"
-#define MQTT_PORT 8443
+#define MQTT_PORT 1883
 
 
 /*
