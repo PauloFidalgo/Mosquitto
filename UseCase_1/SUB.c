@@ -9,7 +9,7 @@ void on_connect(struct mosquitto *mosq, void *obj, int rc) {
 		printf("Error with result code: %d\n", rc);
 		exit(-1);
 	}
-	mosquitto_subscribe(mosq, NULL, VIDEO_S, 0);
+	mosquitto_subscribe(mosq, NULL, RECONF, 0);
 }
 
 void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
