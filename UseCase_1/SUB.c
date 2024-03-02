@@ -9,7 +9,7 @@ void on_connect(struct mosquitto *mosq, void *obj, int rc) {
 		printf("Error with result code: %d\n", rc);
 		exit(-1);
 	}
-	mosquitto_subscribe(mosq, NULL, "lis_radio_sensing", 0);
+	mosquitto_subscribe(mosq, NULL, VIDEO_S, 0);
 }
 
 void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
@@ -23,7 +23,7 @@ int main() {
 
 	struct mosquitto *mosq;
 
-	mosq = mosquitto_new("lis_radio_sensing", true, &id);
+	mosq = mosquitto_new(NULL, true, &id);
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_message_callback_set(mosq, on_message);
 	
