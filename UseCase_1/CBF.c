@@ -5,19 +5,19 @@
 #include <mosquitto.h>
 #include <time.h>
 #include "headers.h"
-
-
+#include <signal.h>
 
 uint8_t modules_ready = 0x00;
 uint8_t modules_ack = 0x00;
 bool finished = false;
+bool started = false;
 struct mosquitto *mosq = NULL;
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc)
 {
     if (rc == 0)
     {
-        printf("Connected to MQTT broker\n");
+        printf("Connected to MQTT broker from CBF \n");
         mosquitto_subscribe(mosq, NULL, RECONF, 1);
         mosquitto_subscribe(mosq, NULL, DATA, 1);
     }
@@ -27,45 +27,56 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc)
     }
 }
 
-void send_reconfig(const struct mosquitto_message *message) {
+void send_reconfig(const struct mosquitto_message *message)
+{
     mosquitto_publish(mosq, NULL, BEAM_CONF, strlen(message), message, 1, true);
     mosquitto_publish(mosq, NULL, LIS_CONF, strlen(message), message, 1, true);
 }
 
-void handle_command_reply(const struct mosquitto_message *message) {
-    if (strcmp((char *)message->payload, GNB_READY) == 0) {
+void handle_command_reply(const struct mosquitto_message *message)
+{
+    if (strcmp((char *)message->payload, GNB_READY) == 0)
+    {
         modules_ready |= 0x01;
     }
-    else if (strcmp((char *)message->payload, UE_READY) == 0) {
+    else if (strcmp((char *)message->payload, UE_READY) == 0)
+    {
         modules_ready |= 0x02;
     }
-    else if (strcmp((char *)message->payload, LIS_READY) == 0) {
+    else if (strcmp((char *)message->payload, LIS_READY) == 0)
+    {
         modules_ready |= 0x04;
     }
-    else if (strcmp((char *)message->payload, VC_READY) == 0) {
+    else if (strcmp((char *)message->payload, VC_READY) == 0)
+    {
         modules_ready |= 0x08;
     }
-    else if (strcmp((char *)message->payload, CODRF_READY) == 0) {
+    else if (strcmp((char *)message->payload, CODRF_READY) == 0)
+    {
         modules_ready |= 0x10;
     }
-    else if (strcmp((char *)message->payload, GNB_ACK) == 0) {
+    else if (strcmp((char *)message->payload, GNB_ACK) == 0)
+    {
         modules_ack |= 0x01;
     }
-    else if (strcmp((char *)message->payload, UE_ACK) == 0) {
+    else if (strcmp((char *)message->payload, UE_ACK) == 0)
+    {
         modules_ack |= 0x02;
     }
-    else if (strcmp((char *)message->payload, LIS_ACK) == 0) {
+    else if (strcmp((char *)message->payload, LIS_ACK) == 0)
+    {
         modules_ack |= 0x04;
     }
-    else if (strcmp((char *)message->payload, VC_ACK) == 0) {
+    else if (strcmp((char *)message->payload, VC_ACK) == 0)
+    {
         modules_ack |= 0x08;
     }
-    else if (strcmp((char *)message->payload, CODRF_ACK) == 0) {
+    else if (strcmp((char *)message->payload, CODRF_ACK) == 0)
+    {
         modules_ack |= 0x10;
     }
     // Add more else if conditions for other payloads if needed
 }
-
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
@@ -100,55 +111,75 @@ int config()
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS)
     {
-        fprintf(stderr, "Unable to connect to MQTT broker.\n");
+        fprintf(stderr, "Unable to connect to MQTT broker .\n");
         return 1;
     }
 
-    mosquitto_loop_start(mosq);
+     mosquitto_loop_start(mosq);
 
+   /* 
     if (mosquitto_threaded_set(mosq, true) != MOSQ_ERR_SUCCESS)
     {
         printf("Error: Unable to set threaded mode");
         return 1;
     }
+    */
     return 0;
 }
 
-void send_finish_command() {
-    char* message = FINISH_COMMAND;
+void send_finish_command()
+{
+    char *message = FINISH_COMMAND;
     mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+    printf("Published finish Command\n");
 }
 
-void send_start_command() {
+void send_start_command()
+{
     mosquitto_subscribe(mosq, NULL, COMMAND, 1);
 
-    char* message = START_COMMAND;
+    char *message = START_COMMAND;
     mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+    printf("Published finish Command\n");
 }
 
-void timer_handler() {
+void timer_handler()
+{
+    printf("TimeOut\n");
     send_finish_command();
 
-    //while (modules_ack != 0x1F);
+    // while (modules_ack != 0x1F);
+    while (modules_ack != 0x01);
+    printf("All modules ack finhish\n");
 
     finished = true;
 }
 
 int run()
 {
-    char porks[100];
+    char input[100];
+
     printf("Enter when you want to start\n");
-    while (fgets(porks, sizeof(porks), stdin) == NULL || porks[0] == '\n') {
+    while (!started)
+    {
         printf("Please enter something:\n");
+        scanf("%s", &input);
+        if (strcmp(input, "start") == 0)
+        {
+
+            started = true;
+        }
     }
 
     send_start_command();
     //while (modules_ready != 0x1F);
+    while (modules_ready != 0x01);
+    printf("All modules ready\n");
 
     signal(SIGALRM, timer_handler);
-    alarm(5);
+    alarm(15);
 
-    while(!finished);
+    while (!finished);
 }
 
 void destroy()
@@ -160,9 +191,11 @@ void destroy()
 
 int main()
 {
-    if (config()) return 1;
+    if (config())
+        return 1;
 
-    if (run()) return 1;
+    if (run())
+        return 1;
 
     destroy();
 
