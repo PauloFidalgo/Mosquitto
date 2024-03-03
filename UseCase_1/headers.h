@@ -31,14 +31,13 @@
 #define LIS_READY "lis_ok"
 #define VC_READY "vc_ok"
 #define CODRF_READY "codrf_ok"
-#define CVCF_READY "cvcf_ok"
+
 
 #define GNB_ACK "gnb_ack"
 #define UE_ACK "ue_ack"
 #define LIS_ACK "lis_ack"
 #define VC_ACK "vc_ack"
 #define CODRF_ACK "codrf_ack"
-#define CVCF_ACK "cvcf_ack"
 
 
 

@@ -28,18 +28,7 @@ void handle_command(const struct mosquitto_message *message)
     }
 }
 
-void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
-{
-    if (rc == 0)
-    {
-        printf("Connected to COMMAND broker from CLISCF\n");
-        mosquitto_subscribe(mosq, NULL, COMMAND, 1);
-    }
-    else
-    {
-        fprintf(stderr, "Failed to connect to MQTT broker from CLISCF: %s\n", mosquitto_connack_string(rc));
-    }
-}
+
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc)
 {
@@ -74,7 +63,7 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
 {
     if (rc == 0)
     {
-        printf("Connected to COMMAND from CLISCF\n");
+        printf("Connected to COMMAND broker from CLISCF\n");
         mosquitto_subscribe(mosq, NULL, COMMAND, 1);
     }
     else

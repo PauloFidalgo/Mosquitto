@@ -7,6 +7,7 @@
 
 struct mosquitto *mosq = NULL;
 
+
 void on_connect(struct mosquitto *mosq, void *userdata, int rc)
 {
     if (rc == 0)
@@ -46,6 +47,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
         handle_command(message);
     }
 }
+
 
 int config()
 {

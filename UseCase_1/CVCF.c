@@ -13,7 +13,7 @@ void handle_command(const struct mosquitto_message *message)
 {
     if (strcmp((char *)message->payload, START_COMMAND) == 0)
     {
-        char *reply = CVCF_READY;
+        char *reply = VC_READY;
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         start = true;
         printf("Received start command\n");
@@ -22,7 +22,7 @@ void handle_command(const struct mosquitto_message *message)
 
     if (strcmp((char *)message->payload, FINISH_COMMAND) == 0)
     {
-        char *reply = CVCF_ACK;
+        char *reply = VC_ACK;
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         end = true;
         printf("Received finish command\n");

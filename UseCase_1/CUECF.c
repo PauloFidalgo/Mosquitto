@@ -10,33 +10,23 @@ bool start = false;
 bool end = false;
 
 void handle_command(const struct mosquitto_message *message) {
+    
     if (strcmp((char *)message->payload, START_COMMAND) == 0) {
-        char* reply = GNB_READY;
+        char* reply = UE_READY;
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         start = true;
         printf("Received start command\n");
     }
 
     if (strcmp((char *)message->payload, FINISH_COMMAND) == 0) {
-        char* reply = GNB_ACK;
+        char* reply = UE_ACK;
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         end = true;
         printf("Received finish command\n");
     }
+    
 }
 
-void on_connect(struct mosquitto *mosq, void *userdata, int rc)
-{
-    if (rc == 0)
-    {
-        printf("Connected to COMMAND broker\n");
-        mosquitto_subscribe(mosq, NULL, COMMAND, 1);
-    }
-    else
-    {
-        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
-    }
-}
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
@@ -81,12 +71,6 @@ int initial_config() {
     return 0;
 }
 
-void config()
-{
-    mosquitto_connect_callback_set(mosq, on_connect);
-    mosquitto_message_callback_set(mosq, on_message);
-}
-
 void idle() {
     mosquitto_message_callback_set(mosq, on_message);
 }
@@ -96,16 +80,21 @@ int run()
     while (start && !end)
     {
         // Publishing a message
-        char *message = "Aqui vai o DATAZIN do UEZIN";
+        char *message = "Aqui vai o DATAZIN";
         mosquitto_publish(mosq, NULL, DATA, strlen(message), message, 1, true);
         
-        *message = "Aqui vai o UE_SENSINGZIN";
+        //*message = "Aqui vai o UE_SENSINGZIN";
         mosquitto_publish(mosq, NULL, UE_RS, strlen(message), message, 1, true);
 
         // Sleep for a short time before publishing the next message
         usleep(1000000); // 1 second
     }
     return 0;
+}
+
+void config()
+{
+    mosquitto_message_callback_set(mosq, on_message);
 }
 
 void destroy()

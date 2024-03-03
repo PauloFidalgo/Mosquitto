@@ -26,6 +26,17 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc)
         fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
     }
 }
+void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
+{
+    if (rc == 0)
+    {
+        printf("Connected to MQTT broker from CBF \n");
+    }
+    else
+    {
+        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
+    }
+}
 
 void send_reconfig(const struct mosquitto_message *message)
 {
@@ -95,7 +106,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     // Add more else if conditions for other topics if needed
 }
 
-int config()
+int initial_config()
 {
     mosquitto_lib_init();
 
@@ -106,7 +117,7 @@ int config()
         return 1;
     }
 
-    mosquitto_connect_callback_set(mosq, on_connect);
+    mosquitto_connect_callback_set(mosq, initial_connection);
     mosquitto_message_callback_set(mosq, on_message);
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS)
@@ -115,9 +126,15 @@ int config()
         return 1;
     }
 
-     mosquitto_loop_start(mosq);
+    mosquitto_loop_start(mosq);
 
     return 0;
+}
+
+void config()
+{
+    mosquitto_connect_callback_set(mosq, on_connect);
+    mosquitto_message_callback_set(mosq, on_message);
 }
 
 void send_finish_command()
@@ -133,7 +150,7 @@ void send_start_command()
 
     char *message = START_COMMAND;
     mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
-    printf("Published finish Command\n");
+    printf("Published start Command\n");
 }
 
 void timer_handler()
@@ -141,13 +158,14 @@ void timer_handler()
     printf("TimeOut\n");
     send_finish_command();
 
-    while (modules_ack != 0x1F);
+    // while (modules_ack != 0x1F);
+    while (modules_ack != 0x0F)
+        ;
     printf("All modules ack finhish\n");
 
     finished = true;
 }
-
-int run()
+void idle()
 {
     char input[100];
 
@@ -165,8 +183,15 @@ int run()
 
     send_start_command();
 
-    while (modules_ready != 0x1F);
+
+    // while (modules_ready != 0x1F);
+    while (modules_ready != 0x0F);
     printf("All modules ready\n");
+    config();
+}
+
+int run()
+{
 
     signal(SIGALRM, timer_handler);
     alarm(15);
@@ -185,8 +210,9 @@ void destroy()
 
 int main()
 {
-    if (config())
-        return 1;
+    if (initial_config())return 1;
+
+    idle();
 
     if (run())
         return 1;
