@@ -1,12 +1,6 @@
 *.o
-*.*
 Makefile
 *.exe
 *.out
 *.bin
-CgNBCF
-CLISCF
-CUECF
-CVCF
-PUB
-SUB
+*.db
