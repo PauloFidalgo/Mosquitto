@@ -10,6 +10,7 @@
 * Topics to be used in Use Case 1
 * 
 */
+#define COMMAND "command"
 #define RECONF "reconfiguration"
 #define BEAM_CONF "beam_config"
 #define LIS_CONF "lis_config"
@@ -18,4 +19,25 @@
 #define LIS_RS "lis_radio_sensing"
 #define VIDEO_S "video_sensing"
 #define DATA "data"
+
+
+
+#define START_COMMAND "START"
+#define FINISH_COMMAND "FINISH"
+
+
+#define GNB_READY "gnb_ok"
+#define UE_READY "ue_ok"
+#define LIS_READY "lis_ok"
+#define VC_READY "vc_ok"
+#define CODRF_READY "codrf_ok"
+
+#define GNB_ACK "gnb_ack"
+#define UE_ACK "ue_ack"
+#define LIS_ACK "lis_ack"
+#define VC_ACK "vc_ack"
+#define CODRF_ACK "codrf_ack"
+
+
+
 

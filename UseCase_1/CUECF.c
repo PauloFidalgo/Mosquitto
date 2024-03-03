@@ -61,6 +61,7 @@ void destroy()
 
 int main()
 {
+    
     if (config())
     {
         return 1;

@@ -3,8 +3,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <mosquitto.h>
+#include <time.h>
 #include "headers.h"
 
+
+
+uint8_t modules_ready = 0x00;
+uint8_t modules_ack = 0x00;
+bool finished = false;
 struct mosquitto *mosq = NULL;
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc)
@@ -13,7 +19,7 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc)
     {
         printf("Connected to MQTT broker\n");
         mosquitto_subscribe(mosq, NULL, RECONF, 1);
-        mosquitto_subscribe(mosq, NULL, DATA, 1)
+        mosquitto_subscribe(mosq, NULL, DATA, 1);
     }
     else
     {
@@ -21,16 +27,61 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc)
     }
 }
 
+void send_reconfig(const struct mosquitto_message *message) {
+    mosquitto_publish(mosq, NULL, BEAM_CONF, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, LIS_CONF, strlen(message), message, 1, true);
+}
+
+void handle_command_reply(const struct mosquitto_message *message) {
+    if (strcmp((char *)message->payload, GNB_READY) == 0) {
+        modules_ready |= 0x01;
+    }
+    else if (strcmp((char *)message->payload, UE_READY) == 0) {
+        modules_ready |= 0x02;
+    }
+    else if (strcmp((char *)message->payload, LIS_READY) == 0) {
+        modules_ready |= 0x04;
+    }
+    else if (strcmp((char *)message->payload, VC_READY) == 0) {
+        modules_ready |= 0x08;
+    }
+    else if (strcmp((char *)message->payload, CODRF_READY) == 0) {
+        modules_ready |= 0x10;
+    }
+    else if (strcmp((char *)message->payload, GNB_ACK) == 0) {
+        modules_ack |= 0x01;
+    }
+    else if (strcmp((char *)message->payload, UE_ACK) == 0) {
+        modules_ack |= 0x02;
+    }
+    else if (strcmp((char *)message->payload, LIS_ACK) == 0) {
+        modules_ack |= 0x04;
+    }
+    else if (strcmp((char *)message->payload, VC_ACK) == 0) {
+        modules_ack |= 0x08;
+    }
+    else if (strcmp((char *)message->payload, CODRF_ACK) == 0) {
+        modules_ack |= 0x10;
+    }
+    // Add more else if conditions for other payloads if needed
+}
+
+
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
-    if (message->payloadlen)
+    if (strcmp(message->topic, RECONF) == 0)
     {
-        printf("Received message on topic %s: %s\n", message->topic, (char *)message->payload);
+        send_reconfig(message);
     }
-    else
+    else if (strcmp(message->topic, DATA) == 0)
     {
-        printf("Received empty message on topic %s\n", message->topic);
+        printf("Irbilhosn\n");
     }
+    else if (strcmp(message->topic, COMMAND) == 0)
+    {
+        handle_command_reply(message);
+    }
+    // Add more else if conditions for other topics if needed
 }
 
 int config()
@@ -63,19 +114,41 @@ int config()
     return 0;
 }
 
+void send_finish_command() {
+    char* message = FINISH_COMMAND;
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+}
+
+void send_start_command() {
+    mosquitto_subscribe(mosq, NULL, COMMAND, 1);
+
+    char* message = START_COMMAND;
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+}
+
+void timer_handler() {
+    send_finish_command();
+
+    //while (modules_ack != 0x1F);
+
+    finished = true;
+}
+
 int run()
 {
-    while (1)
-    {
-        // Publishing a message
-        char *message = "Hello, MQTT!";
-        mosquitto_publish(mosq, NULL, BEAM_CONF, strlen(message), message, 1, true);
-
-        mosquitto_publish(mosq, NULL, LIS_CONF, strlen(message), message, 1, true);
-
-        // Sleep for a short time before publishing the next message
-        usleep(1000000); // 1 second
+    char porks[100];
+    printf("Enter when you want to start\n");
+    while (fgets(porks, sizeof(porks), stdin) == NULL || porks[0] == '\n') {
+        printf("Please enter something:\n");
     }
+
+    send_start_command();
+    //while (modules_ready != 0x1F);
+
+    signal(SIGALRM, timer_handler);
+    alarm(5);
+
+    while(!finished);
 }
 
 void destroy()
@@ -87,15 +160,9 @@ void destroy()
 
 int main()
 {
-    if (config())
-    {
-        return 1;
-    }
+    if (config()) return 1;
 
-    if (run())
-    {
-        return 1;
-    }
+    if (run()) return 1;
 
     destroy();
 
