@@ -117,13 +117,6 @@ int config()
 
      mosquitto_loop_start(mosq);
 
-   /* 
-    if (mosquitto_threaded_set(mosq, true) != MOSQ_ERR_SUCCESS)
-    {
-        printf("Error: Unable to set threaded mode");
-        return 1;
-    }
-    */
     return 0;
 }
 
@@ -148,8 +141,7 @@ void timer_handler()
     printf("TimeOut\n");
     send_finish_command();
 
-    // while (modules_ack != 0x1F);
-    while (modules_ack != 0x01);
+    while (modules_ack != 0x1F);
     printf("All modules ack finhish\n");
 
     finished = true;
@@ -172,14 +164,16 @@ int run()
     }
 
     send_start_command();
-    //while (modules_ready != 0x1F);
-    while (modules_ready != 0x01);
+
+    while (modules_ready != 0x1F);
     printf("All modules ready\n");
 
     signal(SIGALRM, timer_handler);
     alarm(15);
 
     while (!finished);
+
+    return 0;
 }
 
 void destroy()

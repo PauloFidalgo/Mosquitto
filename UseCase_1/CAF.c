@@ -25,13 +25,25 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc)
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
-    if (message->payloadlen)
+    if (strcmp(message->topic, GNB_RS) == 0)
     {
-        printf("Received message on topic %s: %s\n", message->topic, (char *)message->payload);
+        printf("[Received]: %s\n", (char *)message->payload);
     }
-    else
+    else if (strcmp(message->topic, UE_RS) == 0)
     {
-        printf("Received empty message on topic %s\n", message->topic);
+        printf("[Received]: %s\n", (char *)message->payload);
+    }
+    else if (strcmp(message->topic, LIS_RS) == 0)
+    {
+        printf("[Received]: %s\n", (char *)message->payload);
+    }
+    else if (strcmp(message->topic, VIDEO_S) == 0)
+    {
+        printf("[Received]: %s\n", (char *)message->payload);
+    }
+    else if (strcmp(message->topic, COMMAND) == 0)
+    {
+        handle_command(message);
     }
 }
 
