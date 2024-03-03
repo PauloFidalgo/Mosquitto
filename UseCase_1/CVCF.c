@@ -6,12 +6,36 @@
 #include "headers.h"
 
 struct mosquitto *mosq = NULL;
+bool start = false;
+bool end = false;
 
-void on_connect(struct mosquitto *mosq, void *userdata, int rc)
+void handle_command(const struct mosquitto_message *message)
+{
+    if (strcmp((char *)message->payload, START_COMMAND) == 0)
+    {
+        char *reply = CVCF_READY;
+        mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
+        start = true;
+        printf("Received start command\n");
+     
+    }
+
+    if (strcmp((char *)message->payload, FINISH_COMMAND) == 0)
+    {
+        char *reply = CVCF_ACK;
+        mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
+        end = true;
+        printf("Received finish command\n");
+     
+    }
+}
+
+void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
 {
     if (rc == 0)
     {
-        printf("Connected to MQTT broker\n");
+        printf("Connected to COMMAND broker from CVCF\n");
+        mosquitto_subscribe(mosq, NULL, COMMAND, 1);
     }
     else
     {
@@ -19,8 +43,33 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc)
     }
 }
 
+void on_connect(struct mosquitto *mosq, void *userdata, int rc)
+{
+    if (rc == 0)
+    {
+        printf("Connected to CVCF\n");
+        mosquitto_subscribe(mosq, NULL, COMMAND, 1);
+    }
+    else
+    {
+        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
+    }
+}
 
-int config()
+void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
+{
+
+    if (strcmp(message->topic, COMMAND) == 0)
+    {
+        handle_command(message);
+    }
+    else
+    {
+        // Default case
+    }
+}
+
+int initial_config()
 {
     mosquitto_lib_init();
 
@@ -31,7 +80,7 @@ int config()
         return 1;
     }
 
-    mosquitto_connect_callback_set(mosq, on_connect);
+    mosquitto_connect_callback_set(mosq, initial_connection);
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS)
     {
@@ -40,13 +89,18 @@ int config()
     }
 
     mosquitto_loop_start(mosq);
-
-    if (mosquitto_threaded_set(mosq, true) != MOSQ_ERR_SUCCESS)
-    {
-        printf("Error: Unable to set threaded mode");
-        return 1;
-    }
     return 0;
+}
+
+void config()
+{
+    mosquitto_connect_callback_set(mosq, on_connect);
+    mosquitto_message_callback_set(mosq, on_message);
+}
+
+void idle()
+{
+    mosquitto_message_callback_set(mosq, on_message);
 }
 
 int run()
@@ -60,6 +114,7 @@ int run()
         // Sleep for a short time before publishing the next message
         usleep(1000000); // 1 second
     }
+    return 0;
 }
 
 void destroy()
@@ -71,15 +126,16 @@ void destroy()
 
 int main()
 {
-    if (config())
-    {
+    if (initial_config())
         return 1;
-    }
+
+    while (!start)
+        idle();
+
+    config();
 
     if (run())
-    {
         return 1;
-    }
 
     destroy();
 
