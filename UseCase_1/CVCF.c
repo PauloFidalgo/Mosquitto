@@ -105,7 +105,7 @@ void idle()
 
 int run()
 {
-    while (1)
+    while (start && !end)
     {
         // Publishing a message
         char *message = "Hello, from CVCF";

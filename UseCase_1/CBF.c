@@ -158,9 +158,8 @@ void timer_handler()
     printf("TimeOut\n");
     send_finish_command();
 
-    // while (modules_ack != 0x1F);
-    while (modules_ack != 0x0F)
-        ;
+    while (modules_ack != 0x1F);
+
     printf("All modules ack finhish\n");
 
     finished = true;
@@ -184,8 +183,8 @@ void idle()
     send_start_command();
 
 
-    // while (modules_ready != 0x1F);
-    while (modules_ready != 0x0F);
+    while (modules_ready != 0x1F);
+
     printf("All modules ready\n");
 }
 

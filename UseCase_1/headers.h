@@ -19,6 +19,7 @@
 #define LIS_RS "lis_radio_sensing"
 #define VIDEO_S "video_sensing"
 #define DATA "data"
+#define CAF_ERR "caf_error"
 
 
 
