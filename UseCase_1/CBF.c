@@ -31,6 +31,7 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
     if (rc == 0)
     {
         printf("Connected to MQTT broker from CBF \n");
+        mosquitto_subscribe(mosq, NULL, CAF_ERR, 1);
     }
     else
     {
@@ -133,8 +134,7 @@ int initial_config()
 
 void config()
 {
-    mosquitto_connect_callback_set(mosq, on_connect);
-    mosquitto_message_callback_set(mosq, on_message);
+    mosquitto_subscribe(mosq, NULL, DATA, 1);
 }
 
 void send_finish_command()
@@ -187,12 +187,10 @@ void idle()
     // while (modules_ready != 0x1F);
     while (modules_ready != 0x0F);
     printf("All modules ready\n");
-    config();
 }
 
 int run()
 {
-
     signal(SIGALRM, timer_handler);
     alarm(15);
 
@@ -213,6 +211,8 @@ int main()
     if (initial_config())return 1;
 
     idle();
+
+    config();
 
     if (run())
         return 1;
