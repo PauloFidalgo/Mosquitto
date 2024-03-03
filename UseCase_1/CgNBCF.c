@@ -9,13 +9,12 @@ struct mosquitto *mosq = NULL;
 bool start = false;
 bool end = false;
 
-int handle_command(const struct mosquitto_message *message) {
+void handle_command(const struct mosquitto_message *message) {
     if (strcmp((char *)message->payload, START_COMMAND) == 0) {
         char* reply = GNB_READY;
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         start = true;
         printf("Received start command\n");
-        return 0;
     }
 
     if (strcmp((char *)message->payload, FINISH_COMMAND) == 0) {
@@ -23,7 +22,6 @@ int handle_command(const struct mosquitto_message *message) {
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         end = true;
         printf("Received finish command\n");
-        return 0;
     }
 }
 
@@ -71,7 +69,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 
 
 int initial_config() {
-     mosquitto_lib_init();
+    mosquitto_lib_init();
 
     mosq = mosquitto_new(NULL, true, NULL);
     if (!mosq)
@@ -89,26 +87,17 @@ int initial_config() {
     }
 
     mosquitto_loop_start(mosq);
-    /*
-    if (mosquitto_threaded_set(mosq, true) != MOSQ_ERR_SUCCESS)
-    {
-        printf("Error: Unable to set threaded mode");
-        return 1;
-    }
-    */
     return 0;
 }
 
 
-int config()
+void config()
 {
-
     mosquitto_connect_callback_set(mosq, on_connect);
     mosquitto_message_callback_set(mosq, on_message);
-    return 0;
 }
 
-int idle() {
+void idle() {
     mosquitto_message_callback_set(mosq, on_message);
 }
 
@@ -117,12 +106,13 @@ int run()
     while (start && !end)
     {
         // Publishing a message
-        char *message = "Hello, MQTT!";
+        char *message = "Aqui vai o GNB_SENSINGZIM!";
         mosquitto_publish(mosq, NULL, GNB_RS, strlen(message), message, 1, true);
 
         // Sleep for a short time before publishing the next message
         usleep(1000000); // 1 second
     }
+    return 0;
 }
 
 void destroy()
@@ -138,7 +128,7 @@ int main()
 
     while (!start) idle();
 
-    if (config()) return 1;
+    config();
 
     if (run()) return 1;
 
