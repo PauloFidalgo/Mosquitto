@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <mosquitto.h>
 #include "headers.h"
+#include "utils.h"
 
 struct mosquitto *mosq = NULL;
 bool start = false;
@@ -93,7 +94,7 @@ int run()
     {
         // Publishing a message
         char* json;
-        create_json(&json, get_current_time(),GNB_RS,CgNBCF, "gNB_radio_sensing" );
+        create_json(&json, get_current_time(), CgNBCF, "gNB_radio_sensing" );
 
         mosquitto_publish(mosq, NULL, GNB_RS, strlen(json), json, 1, true);
 

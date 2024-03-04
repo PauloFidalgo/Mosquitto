@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include "utils.h"
 
 struct mosquitto *mosq = NULL;
 bool start = false;
@@ -41,22 +42,29 @@ int initiate_database() {
     if (rc)
         return 1;
 
+
+   
     return 0;
 }
 
 void insert_data(const struct mosquitto_message *message) {
-    char sql_insert[200];
-    char* time, publisher, payload;
+    char sql_insert[1000];
+    char* time;
+    char* publisher;
+    char* payload;
+    
     parse_json((const char *)message->payload, &time, &publisher, &payload);
-    sprintf(sql_insert, "INSERT INTO CONTROL (Timestamp, Topic, Publisher ,Payload) VALUES ('%s', '%s', '%s', '%s');", time,
-             message->topic, publisher, payload);
 
+    sprintf(sql_insert, "INSERT INTO CONTROL (Timestamp, Topic, Publisher, Payload) VALUES ('%s', '%s', '%s', '%s');", time, (char *)message->topic, publisher, payload);
+
+    char *error_message = 0;
+    int rc = sqlite3_exec(database, sql_insert, 0, 0, &error_message);
+
+    
     free(time);
     free(publisher);
     free(payload);
 
-    char *error_message = 0;
-    int rc = sqlite3_exec(database, sql_insert, 0, 0, &error_message);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", error_message);
         sqlite3_free(error_message);
@@ -94,9 +102,11 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     if (strcmp(message->topic, COMMAND) == 0) {
         handle_command(message);
     }
-    insert_data(message);
+    else{
+        insert_data(message);
+    }
+   
 }
-
 int initial_config() {
     mosquitto_lib_init();
 
@@ -115,6 +125,7 @@ int initial_config() {
     }
 
     mosquitto_loop_start(mosq);
+
     return 0;
 }
 
@@ -128,8 +139,8 @@ void config() {
     mosquitto_subscribe(mosq, NULL, VIDEO_S, 1);
     mosquitto_subscribe(mosq, NULL, DATA, 1);
     mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
-    mosquitto_subscribe(mosq, NULL, COMMAND, 1);
     printf("Connected to ALL topics\n");
+    
 }
 
 int run() {

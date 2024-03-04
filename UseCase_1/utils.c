@@ -14,7 +14,7 @@ char *get_current_time()
     return timestamp;
 }
 
-void create_json(char** json_data, char* current_time, char* topic, char* publisher, char* payload)
+void create_json(char** json_data, char* current_time, char* publisher, char* payload)
 {
     cJSON *json = cJSON_CreateObject();
     cJSON_AddStringToObject(json, "Timestamp", current_time);
@@ -25,7 +25,7 @@ void create_json(char** json_data, char* current_time, char* topic, char* publis
     cJSON_Delete(json);
 }
 
-void parse_json(char* json_data, char** timestamp, char** topic, char** publisher, char** payload){
+void parse_json(char* json_data, char** timestamp, char** publisher, char** payload){
     cJSON* json = cJSON_Parse(json_data);
 
     cJSON* temp = cJSON_GetObjectItemCaseSensitive(json, "Timestamp");

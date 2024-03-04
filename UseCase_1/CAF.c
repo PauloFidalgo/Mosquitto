@@ -104,7 +104,7 @@ int run()
     while (!end)
     {   
         char* json;
-        create_json(&json ,get_current_time(), RECONF, CAF, "lis_config & beam_config" );
+        create_json(&json ,get_current_time(), CAF, "lis_config & beam_config" );
 
         mosquitto_publish(mosq, NULL, RECONF, strlen(json), json, 1, true);
 

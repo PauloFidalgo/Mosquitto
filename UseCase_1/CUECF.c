@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <mosquitto.h>
 #include "headers.h"
+#include "utils.h"
 
 struct mosquitto *mosq = NULL;
 bool start = false;
@@ -52,6 +53,7 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
 
 int initial_config()
 {
+
     mosquitto_lib_init();
 
     mosq = mosquitto_new(NULL, true, NULL);
@@ -78,9 +80,12 @@ int run()
 {
     while (!end)
     {
-        char *json, json1;
-        create_json(&json, get_current_time(), DATA, CUECF, "data");
-        create_json(&json1, get_current_time(), UE_RS, CUECF, "ue_radio_sensing");
+    
+        char* json;
+        char* json1;
+
+        create_json(&json, get_current_time(), CUECF, "data");
+        create_json(&json1, get_current_time(), CUECF, "ue_radio_sensing");
 
         mosquitto_publish(mosq, NULL, DATA, strlen(json), json, 1, true);
         mosquitto_publish(mosq, NULL, UE_RS, strlen(json1), json1, 1, true);
@@ -88,6 +93,7 @@ int run()
         cJSON_free(json);
         cJSON_free(json1);
         usleep(1000000);
+    
     }
     return 0;
 }
@@ -106,7 +112,7 @@ void destroy()
 
 int main()
 {
-    if (initial_config())
+    if (initial_config()) // check
         return 1;
 
     while (!start)

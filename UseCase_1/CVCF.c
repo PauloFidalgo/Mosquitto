@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <mosquitto.h>
 #include "headers.h"
+#include "utils.h"
 
 struct mosquitto *mosq = NULL;
 bool start = false;
@@ -88,7 +89,7 @@ int run()
     while (!end)
     {
         char *json;
-        create_json(&json, get_current_time(), VIDEO_S, CVCF, "video_sensing");
+        create_json(&json, get_current_time(), CVCF, "video_sensing");
         mosquitto_publish(mosq, NULL, VIDEO_S, strlen(json), json, 1, true);
 
         cJSON_free(json);

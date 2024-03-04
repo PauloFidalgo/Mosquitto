@@ -193,9 +193,8 @@ void idle()
 
     send_start_command();
 
-    // while (modules_ready != 0x3F);
-    while (modules_ready != 0x20)
-        ;
+    while (modules_ready != 0x3F);
+
 
     printf("All modules ready\n");
 }
