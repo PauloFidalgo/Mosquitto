@@ -25,18 +25,6 @@ void handle_command(const struct mosquitto_message *message) {
     }
 }
 
-void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
-    if (rc == 0) {
-        printf("Connected to MQTT broker\n");
-        mosquitto_subscribe(mosq, NULL, GNB_RS, 1);
-        mosquitto_subscribe(mosq, NULL, UE_RS, 1);
-        mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
-        mosquitto_subscribe(mosq, NULL, VIDEO_S, 1);
-    } else {
-        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
-    }
-}
-
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
     if (strcmp(message->topic, GNB_RS) == 0) {
         printf("[Received]: %s\n", (char *)message->payload);
@@ -82,20 +70,18 @@ int initial_config() {
 }
 
 void config() {
-    printf("Connected to MQTT broker\n");
     mosquitto_subscribe(mosq, NULL, GNB_RS, 1);
     mosquitto_subscribe(mosq, NULL, UE_RS, 1);
     mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
     mosquitto_subscribe(mosq, NULL, VIDEO_S, 1);
+    printf("Connected to ALL topics broker\n");
 }
 
 int run() {
-    while (start && !end) {
+    while (!end) {
 
-        char *lis_config = "lis_config";
+        char *lis_config = "[CAF] lis_config & beam_config";
         mosquitto_publish(mosq, NULL, RECONF, strlen(lis_config), lis_config, 1, true);
-        char *beam_config = "beam_config";
-        mosquitto_publish(mosq, NULL, RECONF, strlen(beam_config), beam_config, 1, true);
 
         usleep(1000000);
     }

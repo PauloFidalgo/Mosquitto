@@ -43,19 +43,6 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
     }
 }
 
-void on_connect(struct mosquitto *mosq, void *userdata, int rc)
-{
-    if (rc == 0)
-    {
-        printf("Connected to CVCF\n");
-        mosquitto_subscribe(mosq, NULL, COMMAND, 1);
-    }
-    else
-    {
-        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
-    }
-}
-
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
 
@@ -81,6 +68,7 @@ int initial_config()
     }
 
     mosquitto_connect_callback_set(mosq, initial_connection);
+    mosquitto_message_callback_set(mosq, on_message);
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS)
     {
@@ -94,21 +82,16 @@ int initial_config()
 
 void config()
 {
-    mosquitto_connect_callback_set(mosq, on_connect);
     mosquitto_message_callback_set(mosq, on_message);
 }
 
-void idle()
-{
-    mosquitto_message_callback_set(mosq, on_message);
-}
 
 int run()
 {
-    while (start && !end)
+    while (!end)
     {
         // Publishing a message
-        char *message = "Hello, from CVCF";
+        char *message = "[CVCF] video_sensing";
         mosquitto_publish(mosq, NULL, VIDEO_S, strlen(message), message, 1, true);
 
         // Sleep for a short time before publishing the next message
@@ -129,8 +112,7 @@ int main()
     if (initial_config())
         return 1;
 
-    while (!start)
-        idle();
+    while (!start);
 
     config();
 

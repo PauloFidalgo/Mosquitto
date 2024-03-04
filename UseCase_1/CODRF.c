@@ -14,7 +14,7 @@ bool end = false;
 sqlite3 *database;
 
 int initiate_database() {
-    int rc = sqlite3_open("porks.db", &database);
+    int rc = sqlite3_open("database.db", &database);
 
     char *error_message = 0;
 
@@ -129,24 +129,6 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc) {
     }
 }
 
-void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
-    if (rc == 0) {
-        mosquitto_subscribe(mosq, NULL, RECONF, 1);
-        mosquitto_subscribe(mosq, NULL, BEAM_CONF, 1);
-        mosquitto_subscribe(mosq, NULL, LIS_CONF, 1);
-        mosquitto_subscribe(mosq, NULL, GNB_RS, 1);
-        mosquitto_subscribe(mosq, NULL, UE_RS, 1);
-        mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
-        mosquitto_subscribe(mosq, NULL, VIDEO_S, 1);
-        mosquitto_subscribe(mosq, NULL, DATA, 1);
-        mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
-        mosquitto_subscribe(mosq, NULL, COMMAND, 1);
-        printf("Connected to ALL topics\n");
-    } else {
-        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
-    }
-}
-
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
     if (strcmp(message->topic, COMMAND) == 0) {
         handle_command(message);
@@ -164,6 +146,7 @@ int initial_config() {
     }
 
     mosquitto_connect_callback_set(mosq, initial_connection);
+    mosquitto_message_callback_set(mosq, on_message);
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS) {
         fprintf(stderr, "Unable to connect to MQTT broker.\n");
@@ -188,10 +171,6 @@ void config() {
     printf("Connected to ALL topics\n");
 }
 
-void idle() {
-    mosquitto_message_callback_set(mosq, on_message);
-}
-
 int run() {
     while (start && !end)
         ;
@@ -211,8 +190,7 @@ int main() {
     if (initial_config())
         return 1;
 
-    while (!start)
-        idle();
+    while (!start);
 
     config();
 

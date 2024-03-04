@@ -29,20 +29,6 @@ void handle_command(const struct mosquitto_message *message)
 }
 
 
-
-void on_connect(struct mosquitto *mosq, void *userdata, int rc)
-{
-    if (rc == 0)
-    {
-        printf("Connected to CLISCF broker\n");
-        mosquitto_subscribe(mosq, NULL, LIS_CONF, 1);
-    }
-    else
-    {
-        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
-    }
-}
-
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
     if (strcmp(message->topic, LIS_CONF) == 0)
@@ -84,6 +70,7 @@ int initial_config()
     }
 
     mosquitto_connect_callback_set(mosq, initial_connection);
+    mosquitto_message_callback_set(mosq, on_message);
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS)
     {
@@ -97,13 +84,8 @@ int initial_config()
 
 void config()
 {
-    mosquitto_connect_callback_set(mosq, on_connect);
-    mosquitto_message_callback_set(mosq, on_message);
-}
-
-void idle()
-{
-    mosquitto_message_callback_set(mosq, on_message);
+    mosquitto_subscribe(mosq, NULL, LIS_CONF, 1);
+    printf("Subscribed topic LIS_CONFIG\n");
 }
 
 int run()
@@ -111,7 +93,7 @@ int run()
     while (start && !end)
     {
         // Publishing a message
-        char *message = "Hello, from CLISCF!";
+        char *message = "[CLISCF] lis_radio_sensing";
         mosquitto_publish(mosq, NULL, LIS_RS, strlen(message), message, 1, true);
 
         // Sleep for a short time before publishing the next message
@@ -132,8 +114,7 @@ int main()
     if (initial_config())
         return 1;
 
-    while (!start)
-        idle();
+    while (!start);
 
     config();
 

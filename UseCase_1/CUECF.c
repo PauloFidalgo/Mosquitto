@@ -60,6 +60,7 @@ int initial_config() {
     }
 
     mosquitto_connect_callback_set(mosq, initial_connection);
+    mosquitto_message_callback_set(mosq, on_message);
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS)
     {
@@ -71,20 +72,16 @@ int initial_config() {
     return 0;
 }
 
-void idle() {
-    mosquitto_message_callback_set(mosq, on_message);
-}
-
 int run()
 {
-    while (start && !end)
+    while (!end)
     {
         // Publishing a message
-        char *message = "Aqui vai o DATAZIN";
+        char *message = "[CUECF] data";
         mosquitto_publish(mosq, NULL, DATA, strlen(message), message, 1, true);
         
-        //*message = "Aqui vai o UE_SENSINGZIN";
-        mosquitto_publish(mosq, NULL, UE_RS, strlen(message), message, 1, true);
+        char *ue = "[CUECF] ue_radio_sensing";
+        mosquitto_publish(mosq, NULL, UE_RS, strlen(ue), ue, 1, true);
 
         // Sleep for a short time before publishing the next message
         usleep(1000000); // 1 second
@@ -108,7 +105,7 @@ int main()
 {
     if (initial_config()) return 1;
 
-    while (!start) idle();
+    while (!start);
 
     config();
 
