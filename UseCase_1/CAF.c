@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "cJSON.h"
+#include "utils.h"
 
 struct mosquitto *mosq = NULL;
 bool start = false;
@@ -90,7 +90,8 @@ int initial_config()
     return 0;
 }
 
-void config() {
+void config()
+{
     mosquitto_subscribe(mosq, NULL, GNB_RS, 1);
     mosquitto_subscribe(mosq, NULL, UE_RS, 1);
     mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
@@ -98,11 +99,18 @@ void config() {
     printf("Connected to ALL topics broker\n");
 }
 
-int run() {
-    while (!end) {
+int run()
+{
+    while (!end)
+    {   
+        char* json;
+        create_json(&json ,get_current_time(),RECONF,CAF, "lis_config & beam_config" );
+        if(mosquitto_publish(mosq, NULL, RECONF, strlen(json), json, 1, true) != 0){
+            printf("ardeu");
+        };
 
-        char *lis_config = "[CAF] lis_config & beam_config";
-        mosquitto_publish(mosq, NULL, RECONF, strlen(lis_config), lis_config, 1, true);
+        //printf("%s\n", json);
+        cJSON_free(json);
 
         usleep(1000000);
     }
