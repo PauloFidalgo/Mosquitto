@@ -43,8 +43,8 @@ int initiate_database() {
                              "LIS_CONF FLOAT NOT NULL);";
 
     char* sql_create_control = "CREATE TABLE IF NOT EXISTS CONTROL ("
-                             "ID INTEGER PRIMARY KEY,"
                              "Timestamp DATETIME NOT NULL,"
+                             "Topic TEXT NOT NULL,"
                              "Publisher TEXT NOT NULL,"
                              "Payload TEXT NOT NULL);";
 
@@ -55,7 +55,6 @@ int initiate_database() {
     rc = sqlite3_exec(database, drop, 0, 0, &error_message);
     if (rc != SQLITE_OK) {
         sqlite3_free(error_message);
-        printf("baracada \n");
         return 1;
     }
 

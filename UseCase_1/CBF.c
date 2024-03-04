@@ -13,8 +13,6 @@ bool finished = false;
 bool started = false;
 struct mosquitto *mosq = NULL;
 
-
-
 void initial_connection(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc == 0) {
         printf("Connected to MQTT broker from CBF \n");
