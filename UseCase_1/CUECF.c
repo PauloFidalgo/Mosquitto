@@ -9,24 +9,25 @@ struct mosquitto *mosq = NULL;
 bool start = false;
 bool end = false;
 
-void handle_command(const struct mosquitto_message *message) {
-    
-    if (strcmp((char *)message->payload, START_COMMAND) == 0) {
-        char* reply = UE_READY;
+void handle_command(const struct mosquitto_message *message)
+{
+
+    if (strcmp((char *)message->payload, START_COMMAND) == 0)
+    {
+        char *reply = UE_READY;
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         start = true;
         printf("Received start command\n");
     }
 
-    if (strcmp((char *)message->payload, FINISH_COMMAND) == 0) {
-        char* reply = UE_ACK;
+    if (strcmp((char *)message->payload, FINISH_COMMAND) == 0)
+    {
+        char *reply = UE_ACK;
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         end = true;
         printf("Received finish command\n");
     }
-    
 }
-
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
@@ -49,7 +50,8 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
     }
 }
 
-int initial_config() {
+int initial_config()
+{
     mosquitto_lib_init();
 
     mosq = mosquitto_new(NULL, true, NULL);
@@ -76,15 +78,16 @@ int run()
 {
     while (!end)
     {
-        // Publishing a message
-        char *message = "[CUECF] data";
-        mosquitto_publish(mosq, NULL, DATA, strlen(message), message, 1, true);
-        
-        char *ue = "[CUECF] ue_radio_sensing";
-        mosquitto_publish(mosq, NULL, UE_RS, strlen(ue), ue, 1, true);
+        char *json, json1;
+        create_json(&json, get_current_time(), DATA, CUECF, "data");
+        create_json(&json1, get_current_time(), UE_RS, CUECF, "ue_radio_sensing");
 
-        // Sleep for a short time before publishing the next message
-        usleep(1000000); // 1 second
+        mosquitto_publish(mosq, NULL, DATA, strlen(json), json, 1, true);
+        mosquitto_publish(mosq, NULL, UE_RS, strlen(json1), json1, 1, true);
+
+        cJSON_free(json);
+        cJSON_free(json1);
+        usleep(1000000);
     }
     return 0;
 }
@@ -103,13 +106,16 @@ void destroy()
 
 int main()
 {
-    if (initial_config()) return 1;
+    if (initial_config())
+        return 1;
 
-    while (!start);
+    while (!start)
+        ;
 
     config();
 
-    if (run()) return 1;
+    if (run())
+        return 1;
 
     destroy();
 

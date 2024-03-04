@@ -17,7 +17,6 @@ void handle_command(const struct mosquitto_message *message)
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         start = true;
         printf("Received start command\n");
-     
     }
 
     if (strcmp((char *)message->payload, FINISH_COMMAND) == 0)
@@ -26,7 +25,6 @@ void handle_command(const struct mosquitto_message *message)
         mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
         end = true;
         printf("Received finish command\n");
-     
     }
 }
 
@@ -85,17 +83,16 @@ void config()
     mosquitto_message_callback_set(mosq, on_message);
 }
 
-
 int run()
 {
     while (!end)
     {
-        // Publishing a message
-        char *message = "[CVCF] video_sensing";
-        mosquitto_publish(mosq, NULL, VIDEO_S, strlen(message), message, 1, true);
+        char *json;
+        create_json(&json, get_current_time(), VIDEO_S, CVCF, "video_sensing");
+        mosquitto_publish(mosq, NULL, VIDEO_S, strlen(json), json, 1, true);
 
-        // Sleep for a short time before publishing the next message
-        usleep(1000000); // 1 second
+        cJSON_free(json);
+        usleep(1000000);
     }
     return 0;
 }
@@ -112,7 +109,8 @@ int main()
     if (initial_config())
         return 1;
 
-    while (!start);
+    while (!start)
+        ;
 
     config();
 
