@@ -14,10 +14,8 @@ bool finished = false;
 bool started = false;
 struct mosquitto *mosq = NULL;
 
-void initial_connection(struct mosquitto *mosq, void *userdata, int rc)
-{
-    if (rc == 0)
-    {
+void initial_connection(struct mosquitto *mosq, void *userdata, int rc) {
+    if (rc == 0) {
         printf("Connected to MQTT broker from CBF \n");
         mosquitto_subscribe(mosq, NULL, CAF_ERR, 1);
     }
@@ -93,7 +91,6 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     {
         char *payload;
         get_payload_from_json((const char *)message->payload, &payload);
-        printf("%s\n", payload);
         free(payload); 
         // send_reconfig(message);
     }

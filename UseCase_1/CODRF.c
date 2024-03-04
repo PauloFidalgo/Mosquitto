@@ -18,62 +18,24 @@ int initiate_database() {
 
     char *error_message = 0;
 
-    if (rc)
+    if (rc) {
+        printf("Error creating Database\n");
         return 1;
-    /*
-    char* sql_create_data_table = "CREATE TABLE IF NOT EXISTS DATA ("
-                             "ID INTEGER PRIMARY KEY,"
-                             "Timestamp DATETIME NOT NULL,"
-                             "Data FLOAT NOT NULL);";
-
-
-    char* sql_create_sensing = "CREATE TABLE IF NOT EXISTS SENSING ("
-                             "ID INTEGER PRIMARY KEY,"
-                             "Timestamp DATETIME NOT NULL,"
-                             "GNB_RS FLOAT NOT NULL,"
-                             "LIS_RS FLOAT NOT NULL,";
-                             "UE_RS FLOAT NOT NULL,";
-                             "VIDEO_S FLOAT NOT NULL);";
-
-
-    char* sql_create_config = "CREATE TABLE IF NOT EXISTS RECONFIGURATION ("
-                             "ID INTEGER PRIMARY KEY,"
-                             "Timestamp DATETIME NOT NULL,"
-                             "GNB_CONF FLOAT NOT NULL,"
-                             "LIS_CONF FLOAT NOT NULL);";
-
-    char* sql_create_control = "CREATE TABLE IF NOT EXISTS CONTROL ("
-                             "ID INTEGER PRIMARY KEY,"
-                             "Timestamp DATETIME NOT NULL,"
-                             "Publisher TEXT NOT NULL,"
-                             "Payload TEXT NOT NULL);";
-
-    */
+    }
 
     char *drop = "DROP TABLE IF EXISTS CONTROL";
 
     rc = sqlite3_exec(database, drop, 0, 0, &error_message);
     if (rc != SQLITE_OK) {
         sqlite3_free(error_message);
-        printf("baracada \n");
         return 1;
     }
 
     char *sql_create_control = "CREATE TABLE IF NOT EXISTS CONTROL ("
                                "Timestamp DATETIME NOT NULL,"
                                "Topic TEXT NOT NULL,"
+                               "Publisher TEXT NOT NULL,"
                                "Payload TEXT NOT NULL);";
-
-    /*
-    rc = sqlite3_exec(database, sql_create_data_table, 0, 0, &error_message);
-    if (rc) return 1;
-
-    rc = sqlite3_exec(database, sql_create_sensing, 0, 0, &error_message);
-    if (rc) return 1;
-
-    rc = sqlite3_exec(database, sql_create_config, 0, 0, &error_message);
-    if (rc) return 1;
-    */
 
     rc = sqlite3_exec(database, sql_create_control, 0, 0, &error_message);
     if (rc)
@@ -82,17 +44,16 @@ int initiate_database() {
     return 0;
 }
 
-char *current_timestamp() {
-    time_t current_time = time(NULL);
-    static char timestamp[20]; // Adjust the size based on your needs
-    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", localtime(&current_time));
-    return timestamp;
-}
-
 void insert_data(const struct mosquitto_message *message) {
     char sql_insert[200];
-    sprintf(sql_insert, "INSERT INTO CONTROL (Timestamp, Topic, Payload) VALUES ('%s', '%s', '%s');",
-            current_timestamp(), message->topic, (char *)message->payload);
+    char* time, publisher, payload;
+    parse_json((const char *)message->payload, &time, &publisher, &payload);
+    sprintf(sql_insert, "INSERT INTO CONTROL (Timestamp, Topic, Publisher ,Payload) VALUES ('%s', '%s', '%s', '%s');", time,
+             message->topic, publisher, payload);
+
+    free(time);
+    free(publisher);
+    free(payload);
 
     char *error_message = 0;
     int rc = sqlite3_exec(database, sql_insert, 0, 0, &error_message);

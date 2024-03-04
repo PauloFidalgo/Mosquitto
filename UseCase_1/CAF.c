@@ -104,12 +104,10 @@ int run()
     while (!end)
     {   
         char* json;
-        create_json(&json ,get_current_time(),RECONF,CAF, "lis_config & beam_config" );
-        if(mosquitto_publish(mosq, NULL, RECONF, strlen(json), json, 1, true) != 0){
-            printf("ardeu");
-        };
+        create_json(&json ,get_current_time(), RECONF, CAF, "lis_config & beam_config" );
 
-        //printf("%s\n", json);
+        mosquitto_publish(mosq, NULL, RECONF, strlen(json), json, 1, true);
+
         cJSON_free(json);
 
         usleep(1000000);
