@@ -15,11 +15,11 @@ struct mosquitto *mosq = NULL;
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc == 0) {
-        printf("Connected to MQTT broker from CBF \n");
+        printf("CBF successfully connected to the broker \n");
         mosquitto_subscribe(mosq, NULL, RECONF, 1);
         mosquitto_subscribe(mosq, NULL, DATA, 1);
     } else {
-        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
+        fprintf(stderr, "CBF failed to connect to broker: %s\n", mosquitto_connack_string(rc));
     }
 }
 void initial_connection(struct mosquitto *mosq, void *userdata, int rc) {
@@ -86,7 +86,7 @@ int initial_config() {
         return 1;
     }
 
-    mosquitto_connect_callback_set(mosq, initial_connection);
+    mosquitto_connect_callback_set(mosq, on_connect);
     mosquitto_message_callback_set(mosq, on_message);
 
     if (mosquitto_connect(mosq, MQTT_HOST, MQTT_PORT, 60) != MOSQ_ERR_SUCCESS) {
