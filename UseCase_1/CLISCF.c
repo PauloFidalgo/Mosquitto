@@ -93,8 +93,13 @@ int run()
     while (start && !end)
     {
         // Publishing a message
-        char *message = "[CLISCF] lis_radio_sensing";
+
+        char* json;
+        create_json(&json, get_current_time(), LIS_RS, CLISCF, "lis_radio_sensing" );
+
         mosquitto_publish(mosq, NULL, LIS_RS, strlen(message), message, 1, true);
+
+        cJSON_free(json);
 
         // Sleep for a short time before publishing the next message
         usleep(1000000); // 1 second

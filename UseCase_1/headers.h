@@ -41,4 +41,10 @@
 #define CODRF_ACK "codrf_ack"
 #define CAF_ACK "caf_ack"
 
-
+#define CAF "caf"
+#define CBF "cbf"
+#define CgNBCF "cgnbcf"
+#define CLISCF "cliscf"
+#define CVCF "cvcf"
+#define CUECF "cuecf"
+#define CODRF "codrf"

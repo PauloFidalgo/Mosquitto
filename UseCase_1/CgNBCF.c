@@ -92,8 +92,12 @@ int run()
     while (!end)
     {
         // Publishing a message
-        char *message = "[CgNBCF] Aqui vai o GNB_SENSINGZIM!";
-        mosquitto_publish(mosq, NULL, GNB_RS, strlen(message), message, 1, true);
+        char* json;
+        create_json(&json, get_current_time(),GNB_RS,CgNBCF, "gNB_radio_sensing" );
+
+        mosquitto_publish(mosq, NULL, GNB_RS, strlen(json), json, 1, true);
+
+        cJSON_free(json);
 
         // Sleep for a short time before publishing the next message
         usleep(1000000); // 1 second
