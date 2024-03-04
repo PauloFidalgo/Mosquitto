@@ -13,15 +13,8 @@ bool finished = false;
 bool started = false;
 struct mosquitto *mosq = NULL;
 
-void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
-    if (rc == 0) {
-        printf("CBF successfully connected to the broker \n");
-        mosquitto_subscribe(mosq, NULL, RECONF, 1);
-        mosquitto_subscribe(mosq, NULL, DATA, 1);
-    } else {
-        fprintf(stderr, "CBF failed to connect to broker: %s\n", mosquitto_connack_string(rc));
-    }
-}
+
+
 void initial_connection(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc == 0) {
         printf("Connected to MQTT broker from CBF \n");
@@ -32,8 +25,8 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc) {
 }
 
 void send_reconfig(const struct mosquitto_message *message) {
-    mosquitto_publish(mosq, NULL, BEAM_CONF, strlen(message), message, 1, true);
-    mosquitto_publish(mosq, NULL, LIS_CONF, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, BEAM_CONF, strlen((char *)message->payload), (char *)message->payload, 1, true);
+    mosquitto_publish(mosq, NULL, LIS_CONF, strlen((char *)message->payload), (char *)message->payload, 1, true);
 }
 
 void handle_command_reply(const struct mosquitto_message *message) {
@@ -101,6 +94,8 @@ int initial_config() {
 
 void config() {
     mosquitto_subscribe(mosq, NULL, DATA, 1);
+    mosquitto_subscribe(mosq, NULL, RECONF, 1);
+    printf("Subscribed topics DATA and RECONF\n");
 }
 
 void send_finish_command() {

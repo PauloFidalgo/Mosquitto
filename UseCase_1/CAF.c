@@ -29,22 +29,6 @@ void handle_command(const struct mosquitto_message *message)
     }
 }
 
-void on_connect(struct mosquitto *mosq, void *userdata, int rc)
-{
-    if (rc == 0)
-    {
-        printf("Connected to MQTT broker\n");
-        mosquitto_subscribe(mosq, NULL, GNB_RS, 1);
-        mosquitto_subscribe(mosq, NULL, UE_RS, 1);
-        mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
-        mosquitto_subscribe(mosq, NULL, VIDEO_S, 1);
-    }
-    else
-    {
-        fprintf(stderr, "Failed to connect to MQTT broker: %s\n", mosquitto_connack_string(rc));
-    }
-}
-
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
 {
     if (strcmp(message->topic, GNB_RS) == 0)
@@ -106,36 +90,19 @@ int initial_config()
     return 0;
 }
 
-void config()
-{
-    printf("Connected to MQTT broker\n");
+void config() {
     mosquitto_subscribe(mosq, NULL, GNB_RS, 1);
     mosquitto_subscribe(mosq, NULL, UE_RS, 1);
     mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
     mosquitto_subscribe(mosq, NULL, VIDEO_S, 1);
+    printf("Connected to ALL topics broker\n");
 }
 
-void create_json(char **json_data)
-{
-    cJSON *json = cJSON_CreateObject();
-    cJSON_AddStringToObject(json, "module", "CAF");
-    cJSON_AddStringToObject(json, "Topic", "RECONF");
-    cJSON_AddStringToObject(json, "message", "beam_config");
+int run() {
+    while (!end) {
 
-    *json_data = cJSON_Print(json);
-    cJSON_Delete(json);
-}
-
-int run()
-{
-    while (start && !end)
-    {
-        char *json_data;
-        create_json(&json_data);
-        mosquitto_publish(mosq, NULL, RECONF, strlen(json_data), json_data, 1, true);
-
-        printf("%s\n", json_data);
-        cJSON_free(json_data);
+        char *lis_config = "[CAF] lis_config & beam_config";
+        mosquitto_publish(mosq, NULL, RECONF, strlen(lis_config), lis_config, 1, true);
 
         usleep(1000000);
     }
