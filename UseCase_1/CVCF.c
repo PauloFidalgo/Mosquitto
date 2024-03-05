@@ -51,7 +51,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     }
     else
     {
-        // Default case
+        
     }
 }
 
@@ -93,7 +93,7 @@ int run()
         mosquitto_publish(mosq, NULL, VIDEO_S, strlen(json), json, 1, true);
 
         cJSON_free(json);
-        usleep(1000000);
+        usleep(DELAY_US);
     }
     return 0;
 }
@@ -107,16 +107,13 @@ void destroy()
 
 int main()
 {
-    if (initial_config())
-        return 1;
+    if (initial_config()) return 1;
 
-    while (!start)
-        ;
+    while (!start);
 
     config();
 
-    if (run())
-        return 1;
+    run();
 
     destroy();
 

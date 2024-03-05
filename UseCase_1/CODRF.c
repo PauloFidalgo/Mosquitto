@@ -39,11 +39,12 @@ int initiate_database() {
                                "Payload TEXT NOT NULL);";
 
     rc = sqlite3_exec(database, sql_create_control, 0, 0, &error_message);
-    if (rc)
+    
+    if (rc != SQLITE_OK) {
+        sqlite3_free(error_message);
         return 1;
+    }
 
-
-   
     return 0;
 }
 
@@ -144,8 +145,7 @@ void config() {
 }
 
 int run() {
-    while (start && !end)
-        ;
+    while (!end);
     return 0;
 }
 
@@ -156,18 +156,15 @@ void destroy() {
 }
 
 int main() {
-    if (initiate_database())
-        return 1;
+    if (initiate_database()) return 1;
 
-    if (initial_config())
-        return 1;
+    if (initial_config()) return 1;
 
     while (!start);
 
     config();
 
-    if (run())
-        return 1;
+    run();
 
     destroy();
 

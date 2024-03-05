@@ -92,7 +92,6 @@ int run()
 {
     while (!end)
     {
-        // Publishing a message
         char* json;
         create_json(&json, get_current_time(), CgNBCF, "gNB_radio_sensing" );
 
@@ -100,8 +99,7 @@ int run()
 
         cJSON_free(json);
 
-        // Sleep for a short time before publishing the next message
-        usleep(1000000); // 1 second
+        usleep(DELAY_US); 
     }
     return 0;
 }
@@ -121,7 +119,7 @@ int main()
 
     config();
 
-    if (run()) return 1;
+    run();
 
     destroy();
 

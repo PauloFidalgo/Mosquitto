@@ -110,7 +110,7 @@ int run()
 
         cJSON_free(json);
 
-        usleep(1000000);
+        usleep(DELAY_US);
     }
 }
 
@@ -123,16 +123,13 @@ void destroy()
 
 int main()
 {
-    if (initial_config())
-        return 1;
+    if (initial_config()) return 1;
 
-    while (!start)
-        ;
+    while (!start);
 
     config();
 
-    if (run())
-        return 1;
+    run();
 
     destroy();
 

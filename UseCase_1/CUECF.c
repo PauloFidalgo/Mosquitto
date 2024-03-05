@@ -78,9 +78,7 @@ int initial_config()
 
 int run()
 {
-    while (!end)
-    {
-    
+    while (!end) {
         char* json;
         char* json1;
 
@@ -92,9 +90,9 @@ int run()
 
         cJSON_free(json);
         cJSON_free(json1);
-        usleep(1000000);
-    
+        usleep(DELAY_US);
     }
+    
     return 0;
 }
 
@@ -112,16 +110,13 @@ void destroy()
 
 int main()
 {
-    if (initial_config()) // check
-        return 1;
+    if (initial_config()) return 1;
 
-    while (!start)
-        ;
+    while (!start);
 
     config();
 
-    if (run())
-        return 1;
+    run();
 
     destroy();
 

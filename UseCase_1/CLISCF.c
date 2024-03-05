@@ -91,9 +91,8 @@ void config()
 
 int run()
 {
-    while (start && !end)
+    while (!end)
     {
-        // Publishing a message
 
         char* json;
         create_json(&json, get_current_time(), CLISCF, "lis_radio_sensing" );
@@ -102,8 +101,7 @@ int run()
 
         cJSON_free(json);
 
-        // Sleep for a short time before publishing the next message
-        usleep(1000000); // 1 second
+        usleep(DELAY_US); 
     }
     return 0;
 }
@@ -117,15 +115,13 @@ void destroy()
 
 int main()
 {
-    if (initial_config())
-        return 1;
+    if (initial_config()) return 1;
 
     while (!start);
 
     config();
 
-    if (run())
-        return 1;
+    run();
 
     destroy();
 

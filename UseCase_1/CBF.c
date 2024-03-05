@@ -162,15 +162,13 @@ void timer_handler()
     printf("TimeOut\n");
     send_finish_command();
 
-    while (modules_ack != 0x2F)
-        ;
+    while (modules_ack != 0x2F);
 
     printf("All modules finhished with the exception of CODRF\n");
 
     send_experience_finished_command();
 
-    while ((modules_ack & 0x10) != 0)
-        ;
+    while ((modules_ack & 0x10) != 0);
 
     printf("Experience terminated shutting down\n");
     finished = true;
@@ -202,10 +200,9 @@ void idle()
 int run()
 {
     signal(SIGALRM, timer_handler);
-    alarm(15);
+    alarm(EXPERIENCE_TIME_S);
 
-    while (!finished)
-        ;
+    while (!finished);
 
     return 0;
 }
@@ -219,15 +216,13 @@ void destroy()
 
 int main()
 {
-    if (initial_config())
-        return 1;
+    if (initial_config()) return 1;
 
     idle();
 
     config();
 
-    if (run())
-        return 1;
+    run();
 
     destroy();
 

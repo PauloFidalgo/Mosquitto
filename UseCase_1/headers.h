@@ -5,6 +5,9 @@
 #define MQTT_HOST "localhost"
 #define MQTT_PORT 1883
 
+#define DELAY_US 1000000
+#define EXPERIENCE_TIME_S 15
+
 
 /*
 * Topics to be used in Use Case 1
