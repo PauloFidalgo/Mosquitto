@@ -101,10 +101,14 @@ void config()
 
 int run()
 {
+    int i = 0;
     while (!end)
     {   
         char* json;
-        create_json(&json ,get_current_time(), CAF, "lis_config & beam_config" );
+        char msg[20];
+        sprintf(msg, "%d", i);
+        i++;
+        create_json(&json, get_current_time(), CAF, msg);
 
         mosquitto_publish(mosq, NULL, RECONF, strlen(json), json, 1, true);
 
@@ -112,6 +116,8 @@ int run()
 
         usleep(DELAY_US);
     }
+    
+    return 0;
 }
 
 void destroy()

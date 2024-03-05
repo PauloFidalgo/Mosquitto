@@ -26,9 +26,27 @@ void initial_connection(struct mosquitto *mosq, void *userdata, int rc) {
 }
 
 void send_reconfig(const struct mosquitto_message *message)
-{
-    mosquitto_publish(mosq, NULL, BEAM_CONF, strlen((char *)message->payload), (char *)message->payload, 1, true);
-    mosquitto_publish(mosq, NULL, LIS_CONF, strlen((char *)message->payload), (char *)message->payload, 1, true);
+{   
+    char* json = NULL;
+    char *payload = NULL;
+    get_payload_from_json((char *)message->payload, &payload);
+    create_json(&json, get_current_time(), CBF, payload);
+
+    mosquitto_publish(mosq, NULL, BEAM_CONF, strlen(json), json, 1, true);
+    mosquitto_publish(mosq, NULL, LIS_CONF, strlen(json), json, 1, true);
+
+    cJSON_free(json);
+    free(payload);
+    
+    /*
+    char *payload;
+    get_payload_from_json((char *)message->payload, &payload);
+
+    mosquitto_publish(mosq, NULL, BEAM_CONF, strlen(payload), payload, 1, true);
+    mosquitto_publish(mosq, NULL, LIS_CONF, strlen(payload), payload, 1, true);
+
+    free(payload);
+    */
 }
 
 void handle_command_reply(const struct mosquitto_message *message)
@@ -89,10 +107,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
 {
     if (strcmp(message->topic, RECONF) == 0)
     {
-        char *payload;
-        get_payload_from_json((const char *)message->payload, &payload);
-        free(payload); 
-        // send_reconfig(message);
+        send_reconfig(message);
     }
     else if (strcmp(message->topic, DATA) == 0)
     {

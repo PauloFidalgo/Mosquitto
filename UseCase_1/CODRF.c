@@ -54,7 +54,7 @@ void insert_data(const struct mosquitto_message *message) {
     char* publisher;
     char* payload;
     
-    parse_json((const char *)message->payload, &time, &publisher, &payload);
+    parse_json((char *)message->payload, &time, &publisher, &payload);
 
     sprintf(sql_insert, "INSERT INTO CONTROL (Timestamp, Topic, Publisher, Payload) VALUES ('%s', '%s', '%s', '%s');", time, (char *)message->topic, publisher, payload);
 
@@ -140,8 +140,8 @@ void config() {
     mosquitto_subscribe(mosq, NULL, VIDEO_S, 1);
     mosquitto_subscribe(mosq, NULL, DATA, 1);
     mosquitto_subscribe(mosq, NULL, LIS_RS, 1);
+    mosquitto_subscribe(mosq, NULL, COMMAND, 1);
     printf("Connected to ALL topics\n");
-    
 }
 
 int run() {
