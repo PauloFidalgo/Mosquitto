@@ -49,6 +49,64 @@ void send_reconfig(const struct mosquitto_message *message)
     */
 }
 
+void gNB_placement_setup(){
+
+}
+void gNB_radio_Communications_setup(){
+
+}
+void gNB_radio_sensing_setup(){
+
+}
+void gNB_radio_sensing_setup(){
+
+}
+void gNB_X_APP_setup(){
+    
+}
+void ue_placement_setup(){
+
+}
+void ue_radio_Communications_setup(){
+
+}
+void ue_radio_sensing_setup(){
+
+}
+void ue_video_sensing_setup(){
+
+}
+void lis_placement_setup(){
+
+}
+void lis_radio_communication_setup(){
+
+}
+void lis_radio_sensing_setup(){
+
+}
+void lis_video_sensing_setup(){
+
+}
+void ctcf_setup(){
+
+}
+void d_s(){
+
+}
+void vr_s_setup(){
+
+}
+void net_s_setup(){
+
+}
+void ml_model_upload(){
+
+}
+void odr_dataset_upload(){
+
+}
+
 void handle_command_reply(const struct mosquitto_message *message)
 {
     if (strcmp((char *)message->payload, GNB_READY) == 0)
