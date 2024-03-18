@@ -7,6 +7,7 @@
 
 
 ### Topics:
+<li> command
 <li> reconfiguration
 <li> beam_config
 <li> lis_config
