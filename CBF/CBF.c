@@ -280,6 +280,88 @@ int run()
     return 0;
 }
 
+cJSON gNB_placement_status() {
+
+}
+
+cJSON gNB_radiocommunicatio_ns_status() {
+    
+}
+
+cJSON gNB_radiosensing_status() {
+    
+}
+
+cJSON gNB_videosensing_status() {
+
+}
+
+cJSON gNB_xapp_status() {
+
+}
+
+cJSON ue_placement_status() {
+
+}
+
+char* ue_radiocommunication_s_status() {
+    char* ibrilhos;
+    create_json(&ibrilhos, "conassa", "persons", "philips");
+    return ibrilhos;
+}
+
+cJSON ue_radiosensing_status() {
+
+}
+
+cJSON ue_videosensing_status() {
+
+}
+
+cJSON lis_placement_status() {
+
+}
+
+cJSON lis_radiocommunication_s_status() {
+
+}
+
+cJSON lis_radiosensing_status() {
+
+}
+
+cJSON lis_videosensing_status() {
+
+}
+
+cJSON ctcf_status() {
+
+}
+
+cJSON ds3_status() {
+
+}
+
+cJSON vrs_status() {
+
+}
+
+cJSON nets_status() {
+
+}
+
+cJSON ml_download() {
+
+}
+
+cJSON odr_download() {
+
+}
+
+cJSON cbf_status() {
+
+}
+
 void destroy()
 {
     mosquitto_disconnect(mosq);
