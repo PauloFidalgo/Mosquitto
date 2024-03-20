@@ -4,7 +4,7 @@ LIBS=-L/opt/homebrew/Cellar/mosquitto/2.0.18/lib -lmosquitto -lsqlite3 -L/opt/ho
 INCLUDE_PATH=-I/opt/homebrew/Cellar/mosquitto/2.0.18/include -I/opt/homebrew/Cellar/cjson/1.7.17/include/cjson
 
 UTILS_LIB=utils.a
-all: CBF 
+all: CBF CBFMQTT
 
 CBF: CBF.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
@@ -27,7 +27,10 @@ CVCF: CVCF.c
 CODRF: CODRF.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
 
+CBFMQTT: CBFMQTT.c
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
+
 clean:
-	rm -f CBF 
+	rm -f CBF CBFMQTT
 
 
