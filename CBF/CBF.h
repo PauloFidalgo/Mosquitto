@@ -13,27 +13,26 @@
 
 int state = STATE_IDLE;
 
+
 void delay(int milliseconds);
 
+/*
+ * Handlers
+ */
+void experience_timer_handler();
+void timer_handler();
+
+/*
+ * States
+ */
 void state_idle();
-
 void state_scheduled();
-
 void state_on_time();
-
 void state_send_config_to_modules();
 void state_send_str_cmd();
-
 void state_running();
-void state_running_time_exp();
-
 void state_wait_fnsh_ack();
-
 void state_send_fnsh_db_cmd();
-void state_wait_config_ack();
-
-void state_wait_str_ack();
-
 void state_wait_fnsh_db_ack();
 void state_reset();
 

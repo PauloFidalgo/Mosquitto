@@ -14,32 +14,30 @@ void timer_handler() {
     state = STATE_ON_TIME;
 }
 
-void delay(int milliseconds)
-{
+void delay(int milliseconds){
     usleep(milliseconds * 1000);
 }
 
-void state_idle()
-{
+void state_idle(){
     printf("idle, waiting for schedule\n");
 
     wait_for_schedule();
 
+    signal(SIGALRM, timer_handler);
+    alarm(EXPERIENCE_TIME_S); 
     state = STATE_SCHEDULED;
 }
 
-void state_scheduled()
-{
+void state_scheduled(){
     printf("I am Scheduled!\n");
-    signal(SIGALRM, timer_handler);
-    alarm(EXPERIENCE_TIME_S);   
+    delay(1000);
 }
 
-void state_on_time()
-{  
+void state_on_time(){  
     printf("Getting configuration from database\n");
     if (1) {
         // Success
+        printf("thinki things\n");
         state = STATE_SEND_CONFIG_TO_MODULES;
     }
     else {
@@ -51,7 +49,7 @@ void state_on_time()
 void state_send_config_to_modules() {
     printf("Got the configurations, sending them to modules\n");
     send_configuration_to_all_modules();
-    if (wait_setup_acknowledge_from_all_modules()) {
+    if (wait_setup_acknowledge_from_all_modules() == 0) {
         state = STATE_SEND_STR_CMD;
     }
     else {

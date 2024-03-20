@@ -12,34 +12,36 @@
 #include "utils.h"
 #include "CBF.h"
 
-int initial_config();
-
 void initial_connection(struct mosquitto *mosq, void *userdata, int rc);
-
-void send_configuration_to_modules();
-
-void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
-
+int initial_config();
 void on_schedule_received(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
-
-void send_reconfig(const struct mosquitto_message *message);
-
-void handle_command_reply(const struct mosquitto_message *message);
-
-void config();
-
-void send_finish_command();
-
-void send_experience_finished_command();
-
-void send_start_command();
-
-void timer_handler();
-
-void idle();
-
-int run();
-
+void reset();
 void destroy();
 
-#endif
+/*
+ * Waiters
+ */
+void wait_for_schedule();
+int wait_setup_acknowledge_from_all_modules();
+int wait_finish_acknowledge();
+void wait_db_finish_acknowledge();
+
+/*
+ * Senders 
+ */
+void send_configuration_to_all_modules();
+void send_start_command();
+void send_finish_command();
+void send_finish_command_to_db();
+
+/*
+ * Message handlers
+ */
+void setup_ack_success_handler(const struct mosquitto_message *message);
+void setup_ack_error_handler(const struct mosquitto_message *message);
+void setup_ack_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
+void modules_ack_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
+void reset_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
+void finish_db_ack_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
+
+#endif /* _CBFMQTT_H_ */
