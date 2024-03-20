@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "utils.h"
 #include "CBF.h"
+#include "CBFMQTT.h"
 
 extern int state;
 
@@ -109,8 +110,10 @@ int initial_config()
     return 0;
 }
 
-void wait_for_schedule() {
-    while (!started);
+void wait_for_schedule()
+{
+    while (!started)
+        ;
 }
 
 void setup_ack_success_handler(const struct mosquitto_message *message)
@@ -205,11 +208,26 @@ void modules_ack_handler(struct mosquitto *mosq, void *userdata, const struct mo
     }
 }
 
+void reset_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message)
+{
+    const char *payload = (const char *)message->payload;
+    size_t numFlags = sizeof(replyResetSuccessFlag) / sizeof(replyResetSuccessFlag[0]);
+
+    for (size_t i = 0; i < numFlags; ++i)
+    {
+        if (strcmp(payload, replyResetSuccessFlag[i].payload) == 0)
+        {
+            modules_ack |= replyResetSuccessFlag[i].flag;
+        }
+    }
+}
+
 int wait_finish_acknowledge()
 {
     mosquitto_message_callback_set(mosq, modules_ack_handler);
 
-    while (modules_error == 0 && modules_ack != 0x07);
+    while (modules_error == 0 && modules_ack != 0x07)
+        ;
 
     if (modules_error == 0)
         return 0;
@@ -231,7 +249,8 @@ void finish_db_ack_handler(struct mosquitto *mosq, void *userdata, const struct 
 void wait_db_finish_acknowledge()
 {
     mosquitto_message_callback_set(mosq, finish_db_ack_handler);
-    while (!db_fnsh_ack);
+    while (!db_fnsh_ack)
+        ;
 }
 
 void reset()
@@ -247,7 +266,8 @@ void reset()
     mosquitto_message_callback_set(mosq, modules_ack_handler);
     mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
 
-    while (modules_ack != 0x17);
+    while (modules_ack != 0x17)
+        ;
 }
 
 void destroy()

@@ -1,4 +1,5 @@
 #include "CBF.h"
+#include "CBFMQTT.h"
 
 
 struct CbfStateMachine {
@@ -14,13 +15,11 @@ void timer_handler() {
     state = STATE_ON_TIME;
 }
 
-void delay(int milliseconds)
-{
+void delay(int milliseconds){
     usleep(milliseconds * 1000);
 }
 
-void state_idle()
-{
+void state_idle(){
     printf("idle, waiting for schedule\n");
 
     wait_for_schedule();
@@ -28,15 +27,13 @@ void state_idle()
     state = STATE_SCHEDULED;
 }
 
-void state_scheduled()
-{
+void state_scheduled(){
     printf("I am Scheduled!\n");
     signal(SIGALRM, timer_handler);
     alarm(EXPERIENCE_TIME_S);   
 }
 
-void state_on_time()
-{  
+void state_on_time(){  
     printf("Getting configuration from database\n");
     if (1) {
         // Success
