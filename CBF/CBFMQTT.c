@@ -240,7 +240,7 @@ int wait_setup_acknowledge_from_all_modules(){
     return 1;
 }
 
-void send_configuration_to_all_modules(const configuration_t *configuration) {
+void send_configuration_to_all_modules(const struct configuration_t *configuration) {
     char *message = "CONFIGURATION";
 
     mosquitto_publish(mosq, NULL, CGNBCF_SETUP, strlen(message), message, 1, true);

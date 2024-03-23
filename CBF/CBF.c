@@ -6,7 +6,7 @@ typedef struct {
     void (*transition_func)();
 } CbfStateMachine;
 
-const configuration_t configuration = {};
+const struct configuration_t configuration = {};
 
 void experience_timer_handler() {
     state = STATE_RUNNING_TIME_EXP;
