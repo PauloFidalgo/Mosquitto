@@ -72,7 +72,6 @@ void on_schedule_received(struct mosquitto *mosq, void *userdata, const struct m
         started = true;
     }
     //mosquitto_unsubscribe(mosq, NULL, CAF_SCHEDULE);
-   
 }
 
 
@@ -116,7 +115,6 @@ int initial_config()
 
 void wait_for_schedule()
 {
-      
     while (!started) {};
 }
 
@@ -163,8 +161,7 @@ void setup_ack_handler(struct mosquitto *mosq, void *userdata, const struct mosq
 
 int wait_setup_acknowledge_from_all_modules()
 {   
-    // 0x17
-    while (modules_error == 0 && modules_ack != 0x00);
+    while (modules_error == 0 && modules_ack != 0x07);
 
     if (modules_error == 0)
         return 0;
@@ -230,8 +227,7 @@ int wait_finish_acknowledge()
 {
     mosquitto_message_callback_set(mosq, modules_ack_handler);
 
-    while (modules_error == 0 && modules_ack != 0x07)
-        ;
+    while (modules_error == 0 && modules_ack != 0x07);
 
     if (modules_error == 0)
         return 0;
@@ -253,8 +249,7 @@ void finish_db_ack_handler(struct mosquitto *mosq, void *userdata, const struct 
 void wait_db_finish_acknowledge()
 {
     mosquitto_message_callback_set(mosq, finish_db_ack_handler);
-    while (!db_fnsh_ack)
-        ;
+    while (!db_fnsh_ack);
 }
 
 void reset()
@@ -270,8 +265,7 @@ void reset()
     mosquitto_message_callback_set(mosq, modules_ack_handler);
     mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
 
-    while (modules_ack != 0x17)
-        ;
+    while (modules_ack != 0x17);
 }
 
 void destroy()

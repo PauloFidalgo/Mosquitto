@@ -112,8 +112,9 @@ static const struct CbfStateMachine cbfStateMachine [] = {
 };
 
 int main(){
-    if (initial_config()) {
+    while (initial_config()) {
         printf("Error Connecting to MQTT server\n");
+        delay(5000);
     }
 
     while (state != STATE_FINISHED) {
