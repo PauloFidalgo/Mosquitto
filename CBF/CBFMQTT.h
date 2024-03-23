@@ -40,7 +40,6 @@ void send_finish_command_to_db();
 void setup_ack_success_handler(const struct mosquitto_message *message);
 void setup_ack_error_handler(const struct mosquitto_message *message);
 void setup_ack_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
-void modules_ack_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
 void reset_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
 void finish_db_ack_handler(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message);
 

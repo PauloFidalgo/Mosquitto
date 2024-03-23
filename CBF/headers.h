@@ -1,13 +1,12 @@
 /*
-* File that defines headers for use case 1
-* Change IP and Port according to your needs
-*/
+ * File that defines headers for use case 1
+ * Change IP and Port according to your needs
+ */
 #define MQTT_HOST "192.168.1.65"
 #define MQTT_PORT 1883
 
 #define DELAY_US 1000000
 #define EXPERIENCE_TIME_S 5
-
 
 /*  
  * Configuration Topics
@@ -31,13 +30,12 @@
 #define CAF_SCHEDULE "caf_schedule"
 
 /*
-* Messages
-*/
-
+ * Messages
+ */
 #define START_COMMAND "START"
 #define FINISH_COMMAND "FINISH"
-#define EXPERIENCE_FINISHED "EXP_FINISHED"
-#define RESET "reset"
+#define RESET_COMMAND "reset"
+
 /*
  *  Success reply from COMMAND topic 
  *  Due to Setup Publish
@@ -73,10 +71,9 @@
 
 
 /*
-*  Success reply from COMMAND topic
-*  Due to RESET Publish
-*/
-
+ *  Success reply from COMMAND topic
+ *  Due to RESET Publish
+ */
 #define GNB_RESET_SUCCESS "gnb_reset_success"
 #define UE_RESET_SUCCESS "ue_reset_success"
 #define LIS_RESET_SUCCESS "lis_reset_success"
@@ -86,8 +83,8 @@
 
 
 /*
-* Modules
-*/
+ * Modules
+ */
 #define CAF "CAF"
 #define CBF "CBF"
 #define CgNBCF "CGNBCF"
@@ -96,7 +93,9 @@
 #define CUECF "CUECF"
 #define CODRF "CODRF"
 
-// CBF States
+/*
+ * CBF States
+ */
 #define STATE_IDLE 0
 #define STATE_SCHEDULED 1
 #define STATE_ON_TIME 2
@@ -110,7 +109,21 @@
 #define STATE_RESET 10
 #define STATE_FINISHED -1
 
-// CBF Events
+/*
+ * CBF Events
+ */
 #define ACCEPTED 0
 #define SCHEDULE_RECEIVED 1
 #define ERROR 1
+
+
+/*
+ * CBF ACK States
+ */
+#define ACK_START_EXPERIENCE "ack_start"
+#define ACK_FINISH_EXPERIENCE "ack_finish"
+#define ACK_RESET "ack_reset"
+
+#define ERROR_START_EXPERIENCE "error_start_experience"
+#define ERROR_FINISH_EXPERIENCE "error_finish_experience"
+#define ERROR_RESET "error_reset"

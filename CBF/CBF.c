@@ -6,6 +6,15 @@ struct CbfStateMachine {
     void (*transition_func)();
 };
 
+struct configuration_t {
+    char* gnb_config;
+    char* ue_config;
+    char* lis_config;
+    char* cvcf_config;
+};
+
+struct configuration_t configuration = {};
+
 void experience_timer_handler() {
     state = STATE_RUNNING_TIME_EXP;
 }
@@ -19,7 +28,7 @@ void delay(int milliseconds){
 }
 
 void state_idle(){
-    printf("idle, waiting for schedule\n");
+    printf("Idle, waiting for schedule\n");
 
     wait_for_schedule();
 
@@ -29,26 +38,27 @@ void state_idle(){
 }
 
 void state_scheduled(){
-    printf("I am Scheduled!\n");
+    printf("Schedule received, waiting for experience time...\n");
     delay(1000);
 }
 
+// Ideia é dar algumas tentativas de ir buscar à base de dados i.e. 10, se falhar, passar para estado ERROR_GETTING_CONFIGURATION
+// Dar parse da configuração para o struct configuration
 void state_on_time(){  
     printf("Getting configuration from database\n");
     if (1) {
         // Success
-        printf("thinki things\n");
         state = STATE_SEND_CONFIG_TO_MODULES;
     }
     else {
-        // Error
-        state = STATE_IDLE;
+        // Error 
+        //state = ERROR_GETTING_CONFIGURATION;
     }
 }
 
 void state_send_config_to_modules() {
     printf("Got the configurations, sending them to modules\n");
-    send_configuration_to_all_modules();
+    send_configuration_to_all_modules(&configuration);
     if (wait_setup_acknowledge_from_all_modules() == 0) {
         state = STATE_SEND_STR_CMD;
     }

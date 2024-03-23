@@ -13,7 +13,6 @@
 
 int state = STATE_IDLE;
 
-
 void delay(int milliseconds);
 
 /*
