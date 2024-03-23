@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include "utils.h"
 #include "CBF.h"
-#include "CBFMQTT.h"
 
 extern int state;
 
@@ -21,23 +20,23 @@ char* current_ack = ACK_START_EXPERIENCE;
 char* current_err = ERROR_START_EXPERIENCE;
 struct mosquitto *mosq = NULL;
 
-struct MessageHandler_t {
+typedef struct {
     const char *topic;
     void (*handler)(const struct mosquitto_message *);
-};
+} MessageHandler_t;
 
-struct ReplyFlag_t {
+typedef struct {
     const char *payload;
     unsigned int flag;
-};
+} ReplyFlag_t;
 
-struct ReplyMessage_t {
+typedef struct {
     const char* ack;
     void (*ack_handler)(const struct mosquitto_message *);
-};
+} ReplyMessage_t;
 
 
-static const struct ReplyFlag_t replySuccessFlag[] = {
+static const ReplyFlag_t replySuccessFlag[] = {
     {GNB_SETUP_READY, 0x01},
     {UE_SETUP_READY, 0x02},
     {LIS_SETUP_READY, 0x04},
@@ -45,7 +44,7 @@ static const struct ReplyFlag_t replySuccessFlag[] = {
     {CODRF_SETUP_READY, 0x10},
 };
 
-static const struct ReplyFlag_t replyErrorFlag[] = {
+static const ReplyFlag_t replyErrorFlag[] = {
     {GNB_SETUP_ERROR, 0x01},
     {UE_SETUP_ERROR, 0x02},
     {LIS_SETUP_ERROR, 0x04},
@@ -53,7 +52,7 @@ static const struct ReplyFlag_t replyErrorFlag[] = {
     {CODRF_SETUP_ERROR, 0x10},
 };
 
-static const struct ReplyFlag_t replyFinishSuccessFlag[] = {
+static const ReplyFlag_t replyFinishSuccessFlag[] = {
     {GNB_FINISH_SUCCESS, 0x01},
     {UE_FINISH_SUCCESS, 0x02},
     {LIS_FINISH_SUCCESS, 0x04},
@@ -61,7 +60,7 @@ static const struct ReplyFlag_t replyFinishSuccessFlag[] = {
     {CODRF_FINISH_SUCCESS, 0x10},
 };
 
-static const struct ReplyFlag_t replyResetSuccessFlag[] = {
+static const ReplyFlag_t replyResetSuccessFlag[] = {
     {GNB_RESET_SUCCESS, 0x01},
     {UE_RESET_SUCCESS, 0x02},
     {LIS_RESET_SUCCESS, 0x04},
@@ -108,7 +107,7 @@ void reset_ack_success_handler(const struct mosquitto_message *message){
     }
 }
 
-static const struct ReplyMessage_t replySuccessMessage [] = {
+static const ReplyMessage_t replySuccessMessage [] = {
     {ACK_START_EXPERIENCE, setup_ack_success_handler},
     {ACK_FINISH_EXPERIENCE, finish_ack_success_handler},
     {ACK_RESET, reset_ack_success_handler}
@@ -131,7 +130,7 @@ void finish_ack_error_handler(const struct mosquitto_message *message){}
 
 void reset_ack_error_handler(const struct mosquitto_message *message){}
 
-static const struct ReplyMessage_t replyErrorMessage [] = {
+static const ReplyMessage_t replyErrorMessage [] = {
     {ERROR_START_EXPERIENCE, setup_ack_error_handler},
     {ERROR_FINISH_EXPERIENCE, finish_ack_error_handler},
     {ERROR_RESET, reset_ack_error_handler}
@@ -162,7 +161,7 @@ void errors_handler(const struct mosquitto_message *message) {
     }
 }
 
-static const struct MessageHandler_t messageHandler[] = {
+static const MessageHandler_t messageHandler[] = {
     {COMMAND, command_handler}, 
     {CAF_SCHEDULE, handle_schedule_received},
     {ERRORS, errors_handler}
@@ -241,7 +240,7 @@ int wait_setup_acknowledge_from_all_modules(){
     return 1;
 }
 
-void send_configuration_to_all_modules(const struct configuration_t *configuration) {
+void send_configuration_to_all_modules(const configuration_t *configuration) {
     char *message = "CONFIGURATION";
 
     mosquitto_publish(mosq, NULL, CGNBCF_SETUP, strlen(message), message, 1, true);

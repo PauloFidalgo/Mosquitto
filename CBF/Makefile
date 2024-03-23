@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -std=c99
 LIBS=-L/opt/homebrew/Cellar/mosquitto/2.0.18/lib -lmosquitto -lsqlite3 -L/opt/homebrew/Cellar/cjson/1.7.17/lib -lcjson
-INCLUDE_PATH=-I/opt/homebrew/Cellar/mosquitto/2.0.18/include -I/opt/homebrew/Cellar/cjson/1.7.17/include/cjson
+INCLUDE_PATH=-I/opt/homebrew/Cellar/mosquitto/2.0.18/include -I/opt/homebrew/Cellar/cjson/1.7.17/include/cjson -I./Utils
 
-UTILS_LIB=utils.a
+UTILS_LIB=./Utils/utils.a
 all: CBF CLISCF
 
 CBF: CBF.c

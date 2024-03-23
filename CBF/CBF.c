@@ -1,19 +1,12 @@
 #include "CBF.h"
 
 
-struct CbfStateMachine {
+typedef struct {
     u_int32_t state;
     void (*transition_func)();
-};
+} CbfStateMachine;
 
-struct configuration_t {
-    char* gnb_config;
-    char* ue_config;
-    char* lis_config;
-    char* cvcf_config;
-};
-
-struct configuration_t configuration = {};
+const configuration_t configuration = {};
 
 void experience_timer_handler() {
     state = STATE_RUNNING_TIME_EXP;
@@ -107,7 +100,7 @@ void state_reset() {
     state = STATE_FINISHED;
 }
 
-static const struct CbfStateMachine cbfStateMachine [] = {
+static const CbfStateMachine cbfStateMachine [] = {
     {STATE_IDLE, state_idle},
     {STATE_SCHEDULED, state_scheduled},
     {STATE_ON_TIME, state_on_time},

@@ -13,6 +13,13 @@
 
 int state = STATE_IDLE;
 
+typedef struct {
+    char* gnb_config;
+    char* ue_config;
+    char* lis_config;
+    char* cvcf_config;
+} configuration_t;
+
 void delay(int milliseconds);
 
 /*

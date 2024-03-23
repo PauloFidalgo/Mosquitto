@@ -12,7 +12,7 @@ bool shutdown = false;
 /*
  * Struct to handle commands received from CBF
  */
-typedef struct {
+typedef struct  {
     char* command;
     void (*function)();
 } cbf_command_t;
@@ -36,14 +36,14 @@ void start_command_received(){
  * Function to be called when the Finish command was received
  */
 void finish_command_received() {
-    char *reply = LIS_FINISH_SUCCESS;
+    char *reply = UE_FINISH_SUCCESS;
     mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
     end = true;
     printf("Received finish command\n");
 }
 
 void reset_command_received() {
-    char *reply = LIS_RESET_SUCCESS;
+    char *reply = UE_RESET_SUCCESS;
     mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
     printf("Received reset command\n");
     end = false;
@@ -74,16 +74,10 @@ void handle_cbf_command(const struct mosquitto_message *message) {
     }
 }
 
-/*
- * Function to redirect reconfiguration commands 
- */
-void handle_lis_config_command(const struct mosquitto_message *message) {
-    // To Do
-}
 
 // Ainda sem implementação 
-void handle_lis_setup(const struct mosquitto_message *message) {
-    char *reply = LIS_SETUP_READY;
+void handle_ue_setup(const struct mosquitto_message *message) {
+    char *reply = UE_SETUP_READY;
     mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
     printf("Received start command\n");
 }
@@ -93,8 +87,7 @@ void handle_lis_setup(const struct mosquitto_message *message) {
  */
 static const on_message_t on_message [] = {
     {COMMAND, handle_cbf_command},
-    {CLISCF_SETUP, handle_lis_setup},
-    {LIS_CONF, handle_lis_config_command}
+    {CUECF_SETUP, handle_ue_setup},
 };
 
 
@@ -115,7 +108,7 @@ void on_message_received(struct mosquitto *mosq, void *userdata, const struct mo
 void initial_connection(struct mosquitto *mosq, void *userdata, int rc){
     if (rc == 0)
     {
-        mosquitto_subscribe(mosq, NULL, CLISCF_SETUP, 1);
+        mosquitto_subscribe(mosq, NULL, CUECF_SETUP, 1);
         mosquitto_subscribe(mosq, NULL, COMMAND, 1);
     }
     else

@@ -29,7 +29,7 @@ void wait_db_finish_acknowledge();
 /*
  * Senders 
  */
-void send_configuration_to_all_modules();
+void send_configuration_to_all_modules(const struct configuration_t *configuration);
 void send_start_command();
 void send_finish_command();
 void send_finish_command_to_db();
