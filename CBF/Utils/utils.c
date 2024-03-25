@@ -46,3 +46,102 @@ void get_payload_from_json(char* json_data, char** payload){
     *payload = strdup(temp->valuestring);
     cJSON_Delete(json);
 }
+
+void create_gnb_placement_json(char** json_data, char* x, char* y, char* z) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "x", x);
+    cJSON_AddStringToObject(json, "y", y);
+    cJSON_AddStringToObject(json, "z", z);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_radio_sensing_json(char** json_data, char* periodicity, char* iq_samples) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "periodicity", periodicity);
+    cJSON_AddStringToObject(json, "iq_samples", iq_samples);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+// Provavelmente não está correto -> Está igual ao F1
+void create_gnb_ru_json(char** json_data, char* remote_port, char* local_port, char* local_ip, char* remote_ip) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "remote_port", remote_port);
+    cJSON_AddStringToObject(json, "local_port", local_port);
+    cJSON_AddStringToObject(json, "local_ip", local_ip);
+    cJSON_AddStringToObject(json, "remote_ip", remote_ip);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_f1_json(char** json_data, char* remote_port, char* local_port, char* local_ip, char* remote_ip) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "remote_port", remote_port);
+    cJSON_AddStringToObject(json, "local_port", local_port);
+    cJSON_AddStringToObject(json, "local_ip", local_ip);
+    cJSON_AddStringToObject(json, "remote_ip", remote_ip);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_o_cu_json(char** json_data, char* cn, char* f1) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "cn", cn);
+    cJSON_AddStringToObject(json, "f1", f1);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_o_du_json(char** json_data, char* f1, char* ru, char* t_7_2) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "f1", f1);
+    cJSON_AddStringToObject(json, "ru", ru);
+    cJSON_AddStringToObject(json, "7_2", t_7_2);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_o_ru_json(char** json_data, char* t_7_2, char* ru) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "7_2", t_7_2);
+    cJSON_AddStringToObject(json, "ru", ru);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_config_json(char** json_data, char* o_cu, char* o_du, char* o_ru, char* gnb_placement, char* gnb_radio_sensing) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "o_cu", o_cu);
+    cJSON_AddStringToObject(json, "o_du", o_du);
+    cJSON_AddStringToObject(json, "o_ru", o_ru);
+    cJSON_AddStringToObject(json, "gnb_placement", gnb_placement);
+    cJSON_AddStringToObject(json, "gnb_radio_sensing", gnb_radio_sensing);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_telemetry_json(char** json_data, char* rssi, char* rsrp, char* rsrq, char* phr, char* sinr, char* cqi, char* mcs, char* bler, char* bitrate, char* ri) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "rssi", rssi);
+    cJSON_AddStringToObject(json, "rsrp", rsrp);
+    cJSON_AddStringToObject(json, "rsrq", rsrq);
+    cJSON_AddStringToObject(json, "phr", phr);
+    cJSON_AddStringToObject(json, "sinr", sinr);
+    cJSON_AddStringToObject(json, "cqi", cqi);
+    cJSON_AddStringToObject(json, "mcs", mcs);
+    cJSON_AddStringToObject(json, "bler", bler);
+    cJSON_AddStringToObject(json, "bitrate", bitrate);
+    cJSON_AddStringToObject(json, "ri", ri);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}

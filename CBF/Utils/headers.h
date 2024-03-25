@@ -28,6 +28,7 @@
 #define DATA "data"
 #define CAF_ERR "caf_error"
 #define CAF_SCHEDULE "caf_schedule"
+#define GNB_GETTERS "gnb_getters"
 
 /*
  * Messages
@@ -35,6 +36,15 @@
 #define START_COMMAND "START"
 #define FINISH_COMMAND "FINISH"
 #define RESET_COMMAND "reset"
+
+/*
+ * Communication between CBF and CgNBCF
+ */
+#define GET_GNB_PLACEMENT_ST "get_gnb_placement"
+#define GET_GNB_RADIO_COMM_ST "get_gnb_radio_comm"
+#define GET_GNB_RADIO_SENSING_ST "get_gnb_radio_sensing"
+#define GET_GNB_VIDEO_SENSING_ST "get_gnb_video_sensing"
+#define GET_GNB_X_APP_ST "get_gnb_x_app"
 
 /*
  *  Success reply from COMMAND topic 

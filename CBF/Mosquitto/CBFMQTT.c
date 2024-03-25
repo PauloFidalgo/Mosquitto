@@ -19,6 +19,7 @@ bool started = false;
 char* current_ack = ACK_START_EXPERIENCE;
 char* current_err = ERROR_START_EXPERIENCE;
 struct mosquitto *mosq = NULL;
+char* gnb_status = NULL;
 
 typedef struct {
     const char *topic;
@@ -35,7 +36,10 @@ typedef struct {
     void (*ack_handler)(const struct mosquitto_message *);
 } ReplyMessage_t;
 
-
+typedef struct{
+   const char* message;
+   void (*)(const char* m) 
+} ;
 static const ReplyFlag_t replySuccessFlag[] = {
     {GNB_SETUP_READY, 0x01},
     {UE_SETUP_READY, 0x02},
@@ -161,10 +165,17 @@ void errors_handler(const struct mosquitto_message *message) {
     }
 }
 
+void gnb_getters_handler(const struct mosquitto_message *message) {
+    char* msg = (const char *)message->payload;
+
+    gnb_status = msg;
+}
+
 static const MessageHandler_t messageHandler[] = {
     {COMMAND, command_handler}, 
     {CAF_SCHEDULE, handle_schedule_received},
-    {ERRORS, errors_handler}
+    {ERRORS, errors_handler},
+    {GNB_GETTERS, gnb_getters_handler}
 };
 
 
@@ -302,6 +313,29 @@ void reset(){
     modules_error = 0;
     current_ack = ACK_START_EXPERIENCE;
     current_err = ERROR_START_EXPERIENCE;
+}
+
+void subscribe_gnb_status() {
+    mosquitto_subscribe(mosq, NULL, GNB_GETTERS, 1);
+}
+
+void unsubscribe_gnb_status() {
+    mosquitto_unsubscribe(mosq, NULL, GNB_GETTERS);
+}
+
+void get_gnb_status_mqtt(char* status, char* message) {
+    mosquitto_publish(mosq, NULL, GNB_GETTERS, strlen(message), message, 1, true);
+    
+    int attempt = 10;
+    while (gnb_status == NULL && attempt > 0) {
+        attempt--;
+    }
+
+    if (gnb_status != NULL) {
+        status = gnb_status;
+    }
+
+    gnb_status = NULL;
 }
 
 void destroy(){

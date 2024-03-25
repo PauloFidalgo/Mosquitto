@@ -1,11 +1,14 @@
 #ifndef CBF_API_H_
 #define CBF_API_H_
 
-// Gnb placement (x, y, z)
-void get_gnb_placement_status(char *placement);
+#include "../CBFMQTT.h"
+#include "headers.h"
 
 // Gnb placement (x, y, z)
-void set_gnb_placement_setup(const char* placement);
+void get_gnb_placement_status(char *status);
+
+// Gnb placement (x, y, z)
+void set_gnb_placement_setup(const char* setup);
 
 // O_CU, O_DU, O_RU, (bitrate e CQI)
 void get_gnb_radio_communications_status(char *status);
