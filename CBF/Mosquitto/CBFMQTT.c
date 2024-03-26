@@ -152,7 +152,7 @@ void errors_handler(const struct mosquitto_message *message) {
 }
 
 void gnb_getters_handler(const struct mosquitto_message *message) {
-    char* msg = (const char *)message->payload;
+    const char* msg = (const char *)message->payload;
 
     gnb_status = msg;
 }
