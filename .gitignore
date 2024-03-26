@@ -1,5 +1,4 @@
 *.o
 ESP32/
-CBFMQTT.h
 *.conf
 
