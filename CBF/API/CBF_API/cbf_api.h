@@ -1,8 +1,8 @@
 #ifndef CBF_API_H_
 #define CBF_API_H_
 
-#include "../CBFMQTT.h"
-#include "headers.h"
+#include "../Mosquitto/CBFMQTT.h"
+#include "../Utils/headers.h"
 
 // Gnb placement (x, y, z)
 void get_gnb_placement_status(char *status);

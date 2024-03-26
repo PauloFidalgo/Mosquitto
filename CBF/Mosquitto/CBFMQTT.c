@@ -1,15 +1,4 @@
-#include "headers.h"
-#include <mosquitto.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include "utils.h"
-#include "CBF.h"
-
-extern int state;
+#include "CBFMQTT.h"
 
 uint8_t modules_error = 0x00;
 uint8_t modules_ack = 0x00;
@@ -36,10 +25,7 @@ typedef struct {
     void (*ack_handler)(const struct mosquitto_message *);
 } ReplyMessage_t;
 
-typedef struct{
-   const char* message;
-   void (*)(const char* m) 
-} ;
+
 static const ReplyFlag_t replySuccessFlag[] = {
     {GNB_SETUP_READY, 0x01},
     {UE_SETUP_READY, 0x02},

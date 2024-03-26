@@ -1,6 +1,8 @@
 #include "CBF.h"
 
 
+int state = STATE_IDLE;
+
 typedef struct {
     u_int32_t state;
     void (*transition_func)();

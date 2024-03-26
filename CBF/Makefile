@@ -4,33 +4,30 @@ LIBS=-L/opt/homebrew/Cellar/mosquitto/2.0.18/lib -lmosquitto -lsqlite3 -L/opt/ho
 INCLUDE_PATH=-I/opt/homebrew/Cellar/mosquitto/2.0.18/include -I/opt/homebrew/Cellar/cjson/1.7.17/include/cjson -I./Utils
 
 UTILS_LIB=./Utils/utils.a
-all: CBF CLISCF CUECF CgNBCF
+all: CBF CLISCF CUECF CgNBCF CBF_API
 
-CBF: CBF.c
+CBF: Modules/CBF.c Mosquitto/CBFMQTT.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
 
-CAF: CAF.c
+CgNBCF: Modules/CgNBCF.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
 
-CgNBCF: CgNBCF.c
+CLISCF: Modules/CLISCF.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
 
-CLISCF: CLISCF.c
+CUECF: Modules/CUECF.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
 
-CUECF: CUECF.c
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
-
-CVCF: CVCF.c
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
-
-CODRF: CODRF.c
+CVCF: Modules/CVCF.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
 
 CBFMQTT: CBFMQTT.c
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
 
+CBF_API: API/CBF_API/cbf_api.c
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -o $@ $< $(UTILS_LIB) $(LIBS)
+
 clean:
-	rm -f CBF CBFMQTT CLISCF CUECF CgNBCF
+	rm -f CBF CBFMQTT CLISCF CUECF CgNBCF CBF_API
 
 

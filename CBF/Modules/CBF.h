@@ -1,7 +1,7 @@
 #ifndef _CBF_H_
 #define _CBF_H_
 
-#include "headers.h"
+#include "../Utils/headers.h"
 #include <mosquitto.h>
 #include <signal.h>
 #include <stdio.h>
@@ -9,9 +9,8 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "CBFMQTT.c"
+#include "../Mosquitto/CBFMQTT.h"
 
-int state = STATE_IDLE;
 
 struct configuration_t {
     char* gnb_config;
