@@ -2,7 +2,7 @@
  * File that defines headers for use case 1
  * Change IP and Port according to your needs
  */
-#define MQTT_HOST "192.168.1.65"
+#define MQTT_HOST "172.20.10.8"
 #define MQTT_PORT 1883
 
 #define DELAY_US 1000000
