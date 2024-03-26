@@ -66,13 +66,23 @@ void create_gnb_radio_sensing_json(char** json_data, char* periodicity, char* iq
     cJSON_Delete(json);
 }
 
-// Provavelmente não está correto -> Está igual ao F1
-void create_gnb_ru_json(char** json_data, char* remote_port, char* local_port, char* local_ip, char* remote_ip) {
+void create_gnb_band_configuration_json(char** json_data, char* band, char* ssbArfcn, char* pointAArfcn) {
     cJSON *json = cJSON_CreateObject();
-    cJSON_AddStringToObject(json, "remote_port", remote_port);
-    cJSON_AddStringToObject(json, "local_port", local_port);
-    cJSON_AddStringToObject(json, "local_ip", local_ip);
-    cJSON_AddStringToObject(json, "remote_ip", remote_ip);
+    cJSON_AddStringToObject(json, "band", band);
+    cJSON_AddStringToObject(json, "ssbArfcn", ssbArfcn);
+    cJSON_AddStringToObject(json, "pointAArfcn", pointAArfcn);
+
+    *json_data = cJSON_Print(json);
+    cJSON_Delete(json);
+}
+
+void create_gnb_ru_json(char** json_data, char* band_configuration, char* band_width_mhz, char* tdd_configuration, char* logical_ant_rx, char* logical_ant_tx) {
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "band_configuration", band_configuration);
+    cJSON_AddStringToObject(json, "band_width_mhz", band_width_mhz);
+    cJSON_AddStringToObject(json, "tdd_configuration", tdd_configuration);
+    cJSON_AddStringToObject(json, "logical_ant_rx", logical_ant_rx);
+    cJSON_AddStringToObject(json, "logical_ant_tx", logical_ant_tx);
 
     *json_data = cJSON_Print(json);
     cJSON_Delete(json);

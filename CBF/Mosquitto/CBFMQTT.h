@@ -23,7 +23,7 @@ void destroy();
  * Waiters
  */
 void wait_for_schedule();
-int wait_setup_acknowledge_from_all_modules();
+int wait_setup_acknowledge_from_all_modules(uint8_t *modules);
 int wait_finish_acknowledge();
 void wait_db_finish_acknowledge();
 

@@ -7,6 +7,7 @@
 
 #define DELAY_US 1000000
 #define EXPERIENCE_TIME_S 5
+#define ACK_TIMEOUT 10
 
 /*  
  * Configuration Topics

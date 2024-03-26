@@ -54,8 +54,24 @@ void state_on_time(){
 void state_send_config_to_modules() {
     printf("Got the configurations, sending them to modules\n");
     send_configuration_to_all_modules(&configuration);
-    if (wait_setup_acknowledge_from_all_modules() == 0) {
+    uint8_t modules = 0x00;
+    int res = wait_setup_acknowledge_from_all_modules(&modules);
+    if (res == 0) {
         state = STATE_SEND_STR_CMD;
+    }
+    else if (res == 1) {
+        // Timeout
+        if (!(modules & 0x01)) {
+            printf("TIMEOUT: CgNBCF not connected\n");    
+        }
+        if (!(modules & 0x02)) {
+            printf("TIMEOUT: CUECF not connected\n");  
+        }
+        if (!(modules & 0x04)) {
+            printf("TIMEOUT: CLISCF not connected\n");  
+        }
+
+        state = STATE_IDLE;
     }
     else {
         state = STATE_IDLE;

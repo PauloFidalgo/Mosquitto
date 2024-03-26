@@ -9,6 +9,7 @@ char* current_ack = ACK_START_EXPERIENCE;
 char* current_err = ERROR_START_EXPERIENCE;
 struct mosquitto *mosq = NULL;
 char* gnb_status = NULL;
+int attempts = 3;
 
 typedef struct {
     const char *topic;
@@ -25,6 +26,24 @@ typedef struct {
     void (*ack_handler)(const struct mosquitto_message *);
 } ReplyMessage_t;
 
+typedef struct {
+    const char* message;
+    void (*request_handler)();
+} ApiRequestHandler_t;
+
+static const ApiRequestHandler_t gnbRequestHandler[] = {
+    /*
+    {GET_GNB_PLACEMENT_ST, },
+    {GET_GNB_RADIO_COMM_ST, },
+    {GET_GNB_RADIO_SENSING_ST, },
+    {GET_GNB_VIDEO_SENSING_ST, },
+    {GET_GNB_X_APP_ST, }
+    */
+};
+
+static const ApiRequestHandler_t lisRequestHandler[] = {
+
+};
 
 static const ReplyFlag_t replySuccessFlag[] = {
     {GNB_SETUP_READY, 0x01},
@@ -103,7 +122,6 @@ static const ReplyMessage_t replySuccessMessage [] = {
     {ACK_RESET, reset_ack_success_handler}
 };
 
-// pode dar tenda por causa do tamanho dentro do for ( do numErrors)
 void setup_ack_error_handler(const struct mosquitto_message *message){
     const char *payload = (const char *)message->payload;
     size_t numErrors = sizeof(replyErrorFlag) / sizeof(replyErrorFlag[0]);
@@ -116,6 +134,7 @@ void setup_ack_error_handler(const struct mosquitto_message *message){
         }
     }
 }
+
 void finish_ack_error_handler(const struct mosquitto_message *message){}
 
 void reset_ack_error_handler(const struct mosquitto_message *message){}
@@ -153,8 +172,13 @@ void errors_handler(const struct mosquitto_message *message) {
 
 void gnb_getters_handler(const struct mosquitto_message *message) {
     const char* msg = (const char *)message->payload;
+    size_t num_gnb_getters = sizeof(gnbRequestHandler) / sizeof(gnbRequestHandler[0]);
 
-    gnb_status = msg;
+    for (size_t i = 0; i < num_gnb_getters; i++) {
+        if (strcmp(gnbRequestHandler[i].message, msg) == 0) {
+            gnbRequestHandler[i].request_handler();
+        }
+    }
 }
 
 static const MessageHandler_t messageHandler[] = {
@@ -221,45 +245,83 @@ int initial_config(){
 
 void wait_for_schedule(){
     while (!started) {};
+    started = false;
+    mosquitto_unsubscribe(mosq, NULL, CAF_SCHEDULE);
 }
 
-int wait_setup_acknowledge_from_all_modules(){   
-    while (modules_error == 0 && modules_ack != 0x04);
+void setup_timeout_handler() {
+    char* message = "CONFIGURATION";
+    if (!(modules_ack & 0x01)) {
+        mosquitto_publish(mosq, NULL, CGNBCF_SETUP, strlen(message), message, 1, false);
+    }
+    if (!(modules_ack & 0x02)) {
+        mosquitto_publish(mosq, NULL, CUECF_SETUP, strlen(message), message, 1, false);
+    }
+    if (!(modules_ack & 0x04)) {
+        mosquitto_publish(mosq, NULL, CLISCF_SETUP, strlen(message), message, 1, false);
+    }
+    attempts--;
+}
+
+int wait_setup_acknowledge_from_all_modules(uint8_t *modules){
+    signal(SIGALRM, setup_timeout_handler);
+    alarm(5); 
+
+    uint8_t last_ack = 0;
+    int last_attempts = 3;
+    attempts = 3;
+
+    while (modules_error == 0 && modules_ack != 7 && attempts > 0) {
+        if (last_ack != modules_ack) {
+            alarm(5); 
+            last_ack = modules_ack;
+        }
+        if (last_attempts != attempts) {
+            alarm(5);
+            last_attempts = attempts;
+        }
+    }
 
     current_ack = ACK_FINISH_EXPERIENCE;
     current_err = ERROR_FINISH_EXPERIENCE;
+
+    modules = modules_ack;
     modules_ack = 0;
+
+    if (attempts <= 0) {
+        return 1;
+    }
 
     if (modules_error == 0) return 0;
 
     modules_error = 0;
 
-    return 1;
+    return -1;
 }
 
 void send_configuration_to_all_modules(const struct configuration_t *configuration) {
     char *message = "CONFIGURATION";
 
-    mosquitto_publish(mosq, NULL, CGNBCF_SETUP, strlen(message), message, 1, true);
-    mosquitto_publish(mosq, NULL, CLISCF_SETUP, strlen(message), message, 1, true);
-    mosquitto_publish(mosq, NULL, CVCF_SETUP, strlen(message), message, 1, true);
-    mosquitto_publish(mosq, NULL, CORDF_SETUP, strlen(message), message, 1, true);
-    mosquitto_publish(mosq, NULL, CUECF_SETUP, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, CGNBCF_SETUP, strlen(message), message, 1, false);
+    mosquitto_publish(mosq, NULL, CLISCF_SETUP, strlen(message), message, 1, false);
+    mosquitto_publish(mosq, NULL, CVCF_SETUP, strlen(message), message, 1, false);
+    mosquitto_publish(mosq, NULL, CORDF_SETUP, strlen(message), message, 1, false);
+    mosquitto_publish(mosq, NULL, CUECF_SETUP, strlen(message), message, 1, false);
 }
 
 void send_start_command() {
     char *message = START_COMMAND;
-    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, false);
 }
 
 void send_finish_command(){
     char *message = FINISH_COMMAND;
-    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, false);
 }
 
 int wait_finish_acknowledge(){
 
-    while (modules_error == 0 && modules_ack != 0x04);
+    while (modules_error == 0 && modules_ack != 0x07);
 
     current_ack = ACK_RESET;
     current_err = ERROR_RESET;
@@ -274,7 +336,7 @@ int wait_finish_acknowledge(){
 
 void send_finish_command_to_db(){
     char *message = FINISH_COMMAND;
-    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, false);
 }
 
 void wait_db_finish_acknowledge(){
@@ -291,9 +353,9 @@ void reset(){
     started = false;
 
     char *message = RESET_COMMAND;
-    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(message), message, 1, false);
 
-    while (modules_ack != 0x04);
+    while (modules_ack != 0x07);
 
     modules_ack = 0;
     modules_error = 0;
@@ -310,7 +372,7 @@ void unsubscribe_gnb_status() {
 }
 
 void get_gnb_status_mqtt(char* status, char* message) {
-    mosquitto_publish(mosq, NULL, GNB_GETTERS, strlen(message), message, 1, true);
+    mosquitto_publish(mosq, NULL, GNB_GETTERS, strlen(message), message, 1, false);
     
     int attempt = 10;
     while (gnb_status == NULL && attempt > 0) {

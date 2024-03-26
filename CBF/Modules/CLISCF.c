@@ -37,14 +37,14 @@ void start_command_received(){
  */
 void finish_command_received() {
     char *reply = LIS_FINISH_SUCCESS;
-    mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, false);
     end = true;
     printf("Received finish command\n");
 }
 
 void reset_command_received() {
     char *reply = LIS_RESET_SUCCESS;
-    mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, false);
     printf("Received reset command\n");
     end = false;
     start = false;
@@ -84,7 +84,7 @@ void handle_lis_config_command(const struct mosquitto_message *message) {
 // Ainda sem implementação 
 void handle_lis_setup(const struct mosquitto_message *message) {
     char *reply = LIS_SETUP_READY;
-    mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, true);
+    mosquitto_publish(mosq, NULL, COMMAND, strlen(reply), reply, 1, false);
     printf("Received start command\n");
 }
 

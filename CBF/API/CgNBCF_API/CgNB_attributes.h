@@ -12,12 +12,19 @@ typedef struct {
     float iq_samples;
 } cgnb_radio_sensing_t;
 
-// nao esta certo 
 typedef struct {
-    int remote_port;
-    int local_port;
-    char *local_ip;
-    char *remote_ip;
+    int band;
+    int ssbArfcn;
+    int pointAArfcn;
+} band_configuration_t;
+
+
+typedef struct {
+    band_configuration_t band_configuration;
+    int band_width_mhz;
+    char *tdd_configuration;
+    int logical_ant_rx;
+    int logical_ant_tx;
 } ru_t ;
 
 typedef struct {
