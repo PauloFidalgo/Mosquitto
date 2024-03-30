@@ -6,7 +6,6 @@
 
 #include "socket.h"
 
-
 int sock;
 
 void create_socket() {
@@ -32,8 +31,10 @@ void connect_to_server() {
     }
 }
 
-void send_request() {
-    char *message = "GET /get_config HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
+void send_request(char *request, char *id) {
+    char message[1024];
+    sprintf(message, request, id);
+
     if (send(sock, message, strlen(message), 0) < 0) {
         perror("Send failed");
         exit(EXIT_FAILURE);
@@ -57,7 +58,7 @@ void receive_response() {
 int main() {
     create_socket();
     connect_to_server();
-    send_request();
+    send_request(GNB_RADIO_COMMUNICATIONS_STATUS, "256");
     receive_response();
     close(sock);
     return 0;
