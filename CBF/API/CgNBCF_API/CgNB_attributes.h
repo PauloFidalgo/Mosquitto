@@ -18,7 +18,6 @@ typedef struct {
     int pointAArfcn;
 } band_configuration_t;
 
-
 typedef struct {
     band_configuration_t band_configuration;
     int band_width_mhz;

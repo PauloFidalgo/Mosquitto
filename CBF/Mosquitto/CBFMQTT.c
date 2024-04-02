@@ -5,31 +5,12 @@ uint8_t modules_ack = 0x00;
 bool db_fnsh_ack = false;
 bool finished = false;
 bool started = false;
-char* current_ack = ACK_START_EXPERIENCE;
-char* current_err = ERROR_START_EXPERIENCE;
+char* current_ack = ACK_START_EXPERIMENT;
+char* current_err = ERROR_START_EXPERIMENT;
 struct mosquitto *mosq = NULL;
 char* gnb_status = NULL;
 int attempts = 3;
 
-typedef struct {
-    const char *topic;
-    void (*handler)(const struct mosquitto_message *);
-} MessageHandler_t;
-
-typedef struct {
-    const char *payload;
-    unsigned int flag;
-} ReplyFlag_t;
-
-typedef struct {
-    const char* ack;
-    void (*ack_handler)(const struct mosquitto_message *);
-} ReplyMessage_t;
-
-typedef struct {
-    const char* message;
-    void (*request_handler)();
-} ApiRequestHandler_t;
 
 static const ApiRequestHandler_t gnbRequestHandler[] = {
     /*
@@ -42,8 +23,8 @@ static const ApiRequestHandler_t gnbRequestHandler[] = {
 };
 
 static const ApiRequestHandler_t lisRequestHandler[] = {
-
-};
+    
+}; 
 
 static const ReplyFlag_t replySuccessFlag[] = {
     {GNB_SETUP_READY, 0x01},
@@ -117,8 +98,8 @@ void reset_ack_success_handler(const struct mosquitto_message *message){
 }
 
 static const ReplyMessage_t replySuccessMessage [] = {
-    {ACK_START_EXPERIENCE, setup_ack_success_handler},
-    {ACK_FINISH_EXPERIENCE, finish_ack_success_handler},
+    {ACK_START_EXPERIMENT, setup_ack_success_handler},
+    {ACK_FINISH_EXPERIMENT, finish_ack_success_handler},
     {ACK_RESET, reset_ack_success_handler}
 };
 
@@ -140,8 +121,8 @@ void finish_ack_error_handler(const struct mosquitto_message *message){}
 void reset_ack_error_handler(const struct mosquitto_message *message){}
 
 static const ReplyMessage_t replyErrorMessage [] = {
-    {ERROR_START_EXPERIENCE, setup_ack_error_handler},
-    {ERROR_FINISH_EXPERIENCE, finish_ack_error_handler},
+    {ERROR_START_EXPERIMENT, setup_ack_error_handler},
+    {ERROR_FINISH_EXPERIMENT, finish_ack_error_handler},
     {ERROR_RESET, reset_ack_error_handler}
 };
 
@@ -282,8 +263,8 @@ int wait_setup_acknowledge_from_all_modules(uint8_t *modules){
         }
     }
 
-    current_ack = ACK_FINISH_EXPERIENCE;
-    current_err = ERROR_FINISH_EXPERIENCE;
+    current_ack = ACK_FINISH_EXPERIMENT;
+    current_err = ERROR_FINISH_EXPERIMENT;
 
     modules = modules_ack;
     modules_ack = 0;
@@ -359,8 +340,8 @@ void reset(){
 
     modules_ack = 0;
     modules_error = 0;
-    current_ack = ACK_START_EXPERIENCE;
-    current_err = ERROR_START_EXPERIENCE;
+    current_ack = ACK_START_EXPERIMENT;
+    current_err = ERROR_START_EXPERIMENT;
 }
 
 void subscribe_gnb_status() {

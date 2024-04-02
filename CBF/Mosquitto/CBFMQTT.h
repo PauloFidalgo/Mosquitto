@@ -12,6 +12,26 @@
 #include "../Utils/utils.h"
 #include "../Modules/CBF.h"
 
+typedef struct {
+    const char *topic;
+    void (*handler)(const struct mosquitto_message *);
+} MessageHandler_t;
+
+typedef struct {
+    const char *payload;
+    unsigned int flag;
+} ReplyFlag_t;
+
+typedef struct {
+    const char* ack;
+    void (*ack_handler)(const struct mosquitto_message *);
+} ReplyMessage_t;
+
+typedef struct {
+    const char* message;
+    void (*request_handler)();
+} ApiRequestHandler_t;
+
 
 void initial_connection(struct mosquitto *mosq, void *userdata, int rc);
 int initial_config();

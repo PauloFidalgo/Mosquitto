@@ -10,7 +10,7 @@ typedef struct {
 
 const struct configuration_t configuration = {};
 
-void experience_timer_handler() {
+void experiment_timer_handler() {
     state = STATE_RUNNING_TIME_EXP;
 }
 
@@ -28,12 +28,12 @@ void state_idle(){
     wait_for_schedule();
 
     signal(SIGALRM, timer_handler);
-    alarm(EXPERIENCE_TIME_S); 
+    alarm(EXPERIMENT_TIME_S); 
     state = STATE_SCHEDULED;
 }
 
 void state_scheduled(){
-    printf("Schedule received, waiting for experience time...\n");
+    printf("Schedule received, waiting for experiment time...\n");
     delay(1000);
 }
 
@@ -82,8 +82,8 @@ void state_send_str_cmd() {
     printf("All modules acknowledged, sending start command!\n");
     send_start_command();
     state = STATE_RUNNING;
-    signal(SIGALRM, experience_timer_handler);
-    alarm(EXPERIENCE_TIME_S);   
+    signal(SIGALRM, experiment_timer_handler);
+    alarm(EXPERIMENT_TIME_S);   
 }
 
 void state_running() {}

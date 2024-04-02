@@ -6,7 +6,7 @@
 #define MQTT_PORT 1883
 
 #define DELAY_US 1000000
-#define EXPERIENCE_TIME_S 5
+#define EXPERIMENT_TIME_S 5
 #define ACK_TIMEOUT 10
 
 /*  
@@ -131,10 +131,10 @@
 /*
  * CBF ACK States
  */
-#define ACK_START_EXPERIENCE "ack_start"
-#define ACK_FINISH_EXPERIENCE "ack_finish"
+#define ACK_START_EXPERIMENT "ack_start"
+#define ACK_FINISH_EXPERIMENT "ack_finish"
 #define ACK_RESET "ack_reset"
 
-#define ERROR_START_EXPERIENCE "error_start_experience"
-#define ERROR_FINISH_EXPERIENCE "error_finish_experience"
+#define ERROR_START_EXPERIMENT "error_start_experiment"
+#define ERROR_FINISH_EXPERIMENT "error_finish_experiment"
 #define ERROR_RESET "error_reset"
