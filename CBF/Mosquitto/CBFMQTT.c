@@ -498,7 +498,7 @@ void reset()
     current_err = ERROR_START_EXPERIMENT;
 }
 
-static const request_t get_requests[] = {
+static request_t get_requests[] = {
     {GNB_PLACEMENT_STATUS, GET_GNB_PLACEMENT_ST_TP, &gnb_placement_status},
     {GNB_RADIO_COMMUNICATIONS_STATUS, GET_GNB_RADIO_COMM_ST_TP, &gnb_radio_comm_status},
     {GNB_RADIO_SENSING_STATUS, GET_GNB_RADIO_SENSING_ST_TP, &gnb_radio_sensing_status},
@@ -516,7 +516,7 @@ static const request_t get_requests[] = {
     {LIS_VIDEO_SENSING_STATUS, GET_LIS_VIDEO_SENSING_ST_TP, &lis_video_sensing_status},
 };
 
-static const request_t post_requests [] = {
+static request_t post_requests [] = {
     {GNB_PLACEMENT_STATUS, POST_GNB_PLACEMENT_TP, &gnb_placement_setup_ack},
     {GNB_RADIO_COMMUNICATIONS_STATUS, POST_GNB_RADIO_COMM_TP, &gnb_radio_comm_setup_ack},
     {GNB_RADIO_SENSING_STATUS, POST_GNB_RADIO_SENSING_TP, &gnb_radio_sensing_setup_ack},
@@ -557,6 +557,7 @@ int configuration_received(const char* url, const char* body, char* status) {
             }
             else {
                 strcpy(status, *post_requests[i].status);
+                *post_requests[i].status = NULL;
                 return 200;
             }
         }
@@ -587,6 +588,7 @@ int get_status_received(const char* url, char* status) {
             }
             else {
                 strcpy(status, *get_requests[i].status);
+                *get_requests[i].status = NULL;
                 return 200;
             }
         }

@@ -131,6 +131,11 @@ void receive_response() {
 }
 
 int main(int argc, char* argv[]) {
+
+    if (argc < 3) {
+        return 1;
+    }
+    
     create_socket();
     connect_to_server();
 
