@@ -3,33 +3,11 @@
  * Change IP and Port according to your needs
  */
 #define MQTT_HOST "172.20.10.8"
-#define MQTT_PORT 1883
+#define MQTT_PORT 8443
 
 #define DELAY_US 1000000
 #define EXPERIMENT_TIME_S 5
 #define ACK_TIMEOUT 10
-
-/*  
- * Configuration Topics
- */
-#define CGNBCF_SETUP "cgnb_setup" 
-#define CLISCF_SETUP "lis_setup"
-#define CVCF_SETUP "cvcf_setup"
-#define CORDF_SETUP "cordf_setup"
-#define CUECF_SETUP "cuecf_setup"
-#define COMMAND "command"
-#define ERRORS "errors"
-#define RECONF "reconfiguration"
-#define BEAM_CONF "beam_config"
-#define LIS_CONF "lis_config"
-#define GNB_RS "gNB_radio_sensing"
-#define UE_RS "ue_radio_sensing"
-#define LIS_RS "lis_radio_sensing"
-#define VIDEO_S "video_sensing"
-#define DATA "data"
-#define CAF_ERR "caf_error"
-#define CAF_SCHEDULE "caf_schedule"
-#define GNB_GETTERS "gnb_getters"
 
 /*
  * Messages
@@ -38,14 +16,6 @@
 #define FINISH_COMMAND "FINISH"
 #define RESET_COMMAND "reset"
 
-/*
- * Communication between CBF and CgNBCF
- */
-#define GET_GNB_PLACEMENT_ST "get_gnb_placement"
-#define GET_GNB_RADIO_COMM_ST "get_gnb_radio_comm"
-#define GET_GNB_RADIO_SENSING_ST "get_gnb_radio_sensing"
-#define GET_GNB_VIDEO_SENSING_ST "get_gnb_video_sensing"
-#define GET_GNB_X_APP_ST "get_gnb_x_app"
 
 /*
  *  Success reply from COMMAND topic 
@@ -138,3 +108,5 @@
 #define ERROR_START_EXPERIMENT "error_start_experiment"
 #define ERROR_FINISH_EXPERIMENT "error_finish_experiment"
 #define ERROR_RESET "error_reset"
+
+

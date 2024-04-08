@@ -25,7 +25,7 @@ void create_json(char** json_data, char* current_time, char* publisher, char* pa
     cJSON_Delete(json);
 }
 
-void parse_json(char* json_data, char** timestamp, char** publisher, char** payload){
+void parse_json(char* json_data, char** timestamp, char** publisher, char** payload) {
     cJSON* json = cJSON_Parse(json_data);
 
     cJSON* temp = cJSON_GetObjectItemCaseSensitive(json, "Timestamp");
@@ -39,6 +39,7 @@ void parse_json(char* json_data, char** timestamp, char** publisher, char** payl
 
     cJSON_Delete(json);
 }
+
 
 void get_payload_from_json(char* json_data, char** payload){
     cJSON* json = cJSON_Parse(json_data);

@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "socket.h"
+#include "../Utils/utils.h"
 
 int sock;
 
@@ -31,14 +32,88 @@ void connect_to_server() {
     }
 }
 
-void send_request(char *request, char *id) {
-    char message[1024];
-    sprintf(message, request, id);
+void send_post_gnb_placement_setup_request(char *id, char *x, char *y, char *z) {
 
-    if (send(sock, message, strlen(message), 0) < 0) {
+    char* json;
+    create_gnb_placement_json(&json, x, y, z);
+
+    char request[2048];
+    size_t json_len = strlen(json);
+    
+    sprintf(request, "POST /gnb/placement/ HTTP/1.1\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Content-Length: %zu\r\n"
+                    "\r\n"
+                    "%s",
+                    json_len, json);
+    
+    printf("%s\n", request);
+
+    if (send(sock, request, strlen(request), 0) < 0) {
         perror("Send failed");
         exit(EXIT_FAILURE);
+    } else {
+        printf("Send request sent successfully\n");
     }
+    
+    // Receive and process response
+    char response[2048]; // Adjust size as needed
+    ssize_t bytes_received = recv(sock, response, sizeof(response), 0);
+    if (bytes_received == -1) {
+        perror("recv");
+        exit(EXIT_FAILURE);
+    }
+
+    // Null-terminate the received data to use it as a string
+    response[bytes_received] = '\0';
+
+    // Print the response
+    printf("Received response from server:\n%s\n", response); 
+
+    free(json);
+}
+
+void receive_get_gnb_placement_setup_request(char* res) {
+
+    char* body = strstr(res, "{");
+
+    printf(body);
+
+    char* x_char = (char*)malloc(20 * sizeof(char)); 
+    char* y_char = (char*)malloc(20 * sizeof(char));
+    char* z_char = (char*)malloc(20 * sizeof(char));
+
+    parse_gnb_placement_json(body, &x_char, &y_char, &z_char);
+
+    printf("Gnb Placement Status Received\n");
+    printf("x_char: %s\ny_char: %s\nz_char: %s", x_char, y_char, z_char);
+
+    free(x_char);
+    free(y_char);
+    free(z_char);
+}
+
+void send_get_gnb_placement_setup_request(char* id) {
+
+    char request[2048];
+    sprintf(request, "GET /gnb/placement/ HTTP/1.1\r\n", id);
+
+    if (send(sock, request, strlen(request), 0) < 0) {
+        perror("Send failed");
+        exit(EXIT_FAILURE);
+    } else{
+        printf("Send request sent successfully\n");
+    }
+
+    // Receive and process response
+    char response[1024]; // Adjust size as needed
+    ssize_t bytes_received = recv(sock, response, sizeof(response), 0);
+    if (bytes_received == -1) {
+        perror("recv");
+        exit(EXIT_FAILURE);
+    }
+
+    receive_get_gnb_placement_setup_request(response);
 }
 
 void receive_response() {
@@ -55,11 +130,17 @@ void receive_response() {
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     create_socket();
     connect_to_server();
-    send_request(GNB_RADIO_COMMUNICATIONS_STATUS, "256");
-    receive_response();
+
+    if (strcmp(argv[1], "POST") == 0) {
+        send_post_gnb_placement_setup_request(argv[2], argv[3], argv[4], argv[5]);
+    }
+    else {
+        send_get_gnb_placement_setup_request(argv[2]);
+    }
+
     close(sock);
     return 0;
 }

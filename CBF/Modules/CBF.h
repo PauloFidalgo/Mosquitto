@@ -9,15 +9,9 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "../Mosquitto/CBFMQTT.h"
+#include "CBFMQTT.h"
+#include "http_server.h"
 
-
-struct configuration_t {
-    char* gnb_config;
-    char* ue_config;
-    char* lis_config;
-    char* cvcf_config;
-};
 
 void delay(int milliseconds);
 

@@ -8,7 +8,7 @@ typedef struct {
     void (*transition_func)();
 } CbfStateMachine;
 
-const struct configuration_t configuration = {};
+const configuration_t configuration = {};
 
 void experiment_timer_handler() {
     state = STATE_RUNNING_TIME_EXP;
@@ -83,7 +83,7 @@ void state_send_str_cmd() {
     send_start_command();
     state = STATE_RUNNING;
     signal(SIGALRM, experiment_timer_handler);
-    alarm(EXPERIMENT_TIME_S);   
+    alarm(45);   
 }
 
 void state_running() {}
@@ -101,19 +101,19 @@ void state_wait_fnsh_ack() {
 }
 
 void state_send_fnsh_db_cmd() {
-    printf("Sending finish command\n");
+    printf("Sending finish command to CODRF\n");
     send_finish_command_to_db();
     state = STATE_WAIT_FNSH_DB_ACK;
 }
 
 void state_wait_fnsh_db_ack() {
-    printf("Waiting finish command from db\n");
+    printf("Waiting finish command from CODRF\n");
     wait_db_finish_acknowledge();
     state = STATE_RESET;
 }
 
 void state_reset() {
-    printf("Sending reset command\n");
+    printf("Sending reset command to all Modules\n");
     reset();
     state = STATE_FINISHED;
 }
@@ -137,6 +137,11 @@ int main(){
         printf("Error Connecting to MQTT server\n");
         delay(5000);
     }
+    printf("CBF connected to Mosquitto broker\n");
+
+    create_server();
+    printf("Server listening on port %d\n", SOCKET_PORT);
+    accept_connections();
 
     while (state != STATE_FINISHED) {
         cbfStateMachine[state].transition_func(); 

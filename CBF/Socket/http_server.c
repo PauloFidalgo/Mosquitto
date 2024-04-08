@@ -1,151 +1,102 @@
-#include "socket.h"
-#include <arpa/inet.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "http_server.h"
+#include <sys/select.h>
 
 int server_fd, client_socket;
 struct sockaddr_in address;
 int addrlen;
 
-typedef struct {
-    char *request;
-    void (*function)();
-} request_t;
 
-void send_response(int client_socket, HTTP_response response) {
-    // Generate HTTP response
-    char http_header[1024];
-    sprintf(http_header, "HTTP/1.1 %d\r\nContent-Type: text/plain\r\n\r\n", response.status);
+void send_response(int client_socket, HTTP_response response)
+{
+    if (response.status == OK) {
+            // Generate HTTP response
+        char http_header[1024];
+        sprintf(http_header, "HTTP/1.1 %d\r\nContent-Type: text/plain\r\n\r\n", response.status);
 
-    // Send HTTP header
-    send(client_socket, http_header, strlen(http_header), 0);
+        // Send HTTP header
+        send(client_socket, http_header, strlen(http_header), 0);
 
-    // Send body
-    send(client_socket, response.body, strlen(response.body), 0);
+        // Send body
+        send(client_socket, response.body, strlen(response.body), 0);
+    }
+    else {
+        char http_header[1024];
+        sprintf(http_header, "HTTP/1.1 %d\r\nContent-Type: text/plain\r\n\r\n", response.status);
+
+        // Send HTTP header
+        send(client_socket, http_header, strlen(http_header), 0);
+    }
 }
 
-void handle_gnb_placement_status() {
-    char *placement_status = "ready\n";
-    HTTP_response response;
-    response.body = placement_status;
-    response.status = OK;
-    // Send HTTP response
-    send_response(client_socket, response);
-}
 
-void handle_gnb_radio_comm_status() {
-    printf("ola\n");
-    char *placement_status = "hiihihi CAVALOOOOOOOO\n";
-    HTTP_response response;
-    response.body = placement_status;
-    response.status = OK;
-    // Send HTTP response
-    send_response(client_socket, response);
-}
-void handle_radio_sensing_status() {}
-void handle_video_sensing_status() {}
-void handle_Xapp_status() {}
-void handle_ue_placement_status() {}
-void handle_ue_radio_comm_status() {}
-void handle_ue_radio_sensing_status() {}
-void handle_ue_video_sensing_status() {}
-void handle_lis_placement_status() {}
-void handle_lis_radio_comm_status() {}
-void handle_lis_radio_sensing_status() {}
-void handle_lis_video_sensing_status() {}
-void handle_ctcf_status() {}
-void handle_3d_status() {}
-void handle_vrs_status() {}
-void handle_nets_status() {}
-void handle_ml_model_download() {}
-void handle_odr_dataset_download() {}
-void handle_experiment_status() {}
+char *extract_data_from_URI(char *buffer) {
 
-static const request_t requests[] = {
-    {GNB_PLACEMENT_STATUS, handle_gnb_placement_status},
-    {GNB_RADIO_COMMUNICATIONS_STATUS, handle_gnb_radio_comm_status},
-    {GNB_RADIO_SENSING_STATUS, handle_radio_sensing_status},
-    {GNB_VIDEO_SENSING_STATUS, handle_video_sensing_status},
-    {GNB_XAPP_STATUS, handle_Xapp_status},
-    {UE_PLACEMENT_STATUS, handle_ue_placement_status},
-    {UE_RADIO_COMMUNICATIONS_STATUS, handle_ue_radio_comm_status},
-    {UE_RADIO_SENSING_STATUS, handle_ue_radio_sensing_status},
-    {UE_VIDEO_SENSING_STATUS, handle_ue_video_sensing_status},
-    {LIS_PLACEMENT_STATUS, handle_lis_placement_status},
-    {LIS_RADIO_COMMUNICATIONS_STATUS, handle_lis_radio_comm_status},
-    {LIS_RADIO_SENSING_STATUS, handle_lis_radio_sensing_status},
-    {LIS_VIDEO_SENSING_STATUS, handle_lis_video_sensing_status},
-    {CTCF_STATUS, handle_ctcf_status},
-    {_3D_S_STATUS, handle_3d_status},
-    {VRS_STATUS, handle_vrs_status},
-    {NETS_STATUS, handle_nets_status},
-    {ML_MODEL_DOWNLOAD, handle_ml_model_download},
-    {ODR_DATASET_DOWNLOAD, handle_odr_dataset_download},
-    {EXPERIMENT_STATUS, handle_experiment_status},
-};
-
-char *extract_id(char *buffer) {
-    // Tokenize the URL string
     char *token = strtok(buffer, "/");
-    while (token != NULL) {
-        // Check if the token matches the expected pattern for ID
-        if (isdigit(token[0])) {
-            // Allocate memory for the ID
+    while (token != NULL)
+    {
+        if (isdigit(token[0]))
+        {
             char *id = strdup(token);
-            if (id != NULL) {
-                for (int i = 0; id[i]; i++) {
-                    if (!isdigit(id[i])) {
+            if (id != NULL)
+            {
+                for (int i = 0; id[i]; i++)
+                {
+                    if (!isdigit(id[i]))
+                    {
                         id[i] = '\0';
                         break;
                     }
                 }
                 printf("Extracted ID: %s\n", id);
                 return id;
-            } else {
+            }
+            else
+            {
                 perror("Memory allocation failed");
                 exit(EXIT_FAILURE);
             }
         }
-        // Get the next token
         token = strtok(NULL, "/");
     }
     printf("Failed to extract ID\n");
-    return NULL; // Return NULL if ID extraction fails
+    return NULL;
+    
 }
 
-void handle_request(int client_socket) {
-    // Receive HTTP request
-    char buffer[1024] = {0};
-    read(client_socket, buffer, 1024);
-    printf("Received request: %s\n", buffer);
-
-    char buffer_copy[1024];
-    strcpy(buffer_copy, buffer);
-    char *id = extract_id(buffer_copy);
-
+/*
+void handle_get_request(int client_socket, const char* url)
+{
     size_t num_functions = sizeof(requests) / sizeof(requests[0]);
 
-    for (size_t i = 0; i < num_functions; i++) {
-        char request_template[1024];
-        if (sprintf(request_template, requests[i].request, id) < 0) {
-            printf("Error constructing the request with the id\n");
-        }
-
-        if (strstr(buffer, request_template) != NULL) {
-            requests[i].function();
+    for (size_t i = 0; i < num_functions; i++)
+    {
+        if (strcmp(url, requests[i].request) == 0)
+        {
+            handle_status_request(*requests[i].get_status, requests[i].message, requests[i].get_topic);
         }
     }
-    close(client_socket);
 }
 
-void create_server() {
+void handle_post_request(int client_socket, const char* url, const char* body)
+{
+    size_t num_functions = sizeof(requests) / sizeof(requests[0]);
+
+    for (size_t i = 0; i < num_functions; i++)
+    {
+        if (strcmp(url, requests[i].request) == 0) {
+            handle_status_request(*requests[i].post_status, body, requests[i].post_topic);
+        }
+    }
+}
+*/
+
+void create_server()
+{   
     addrlen = sizeof(address);
 
     // Create socket
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
@@ -154,32 +105,192 @@ void create_server() {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(SOCKET_PORT);
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+    {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
 
     // Listen for connections
-    if (listen(server_fd, 3) < 0) {
+    if (listen(server_fd, 3) < 0)
+    {
         perror("listen");
         exit(EXIT_FAILURE);
     }
 }
 
-void accept_connections() {
-    while (1) {
-        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+/*
+void handle_request(void* arg){
+     int client_socket = *((int*)arg);
+    char request[1024];
+    ssize_t bytes_received = recv(client_socket, request, sizeof(request), 0);
+    if (bytes_received < 0) {
+        perror("Failed");
+        close(client_socket);
+        pthread_exit(NULL);
+    }
+
+    char* request_line_end = strstr(request, "\r\n");
+    if (request_line_end != NULL) {
+        char method[10], url[1024];
+        sscanf(request, "%s %s", method, url);
+
+        if (strcmp(method, "POST") == 0) {
+            char* body_start = strstr(request, "\r\n\r\n");
+                    if (body_start != NULL) {
+                        body_start += 4;
+                        
+                        HTTP_response response;
+                        char* body=(char*)malloc(sizeof(char) * 1024);
+                        int res = configuration_received(url, body_start, body);
+                        if (res != -1) {
+                            response.status = res;
+                            response.body = body;
+                        }
+                        else {
+                            response.status = 404;
+                        }
+
+                        send_response(client_socket, response);
+                        free(body);
+                    }
+        } else if (strcmp(method, "GET") == 0) {
+            
+        } else {
+            const char* response = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+            send(client_socket, response, strlen(response), 0);
+        }
+    }
+
+    close(client_socket);
+    pthread_exit(NULL);
+}
+*/
+
+void accept_connections()
+{
+    
+    while(1){
+        fd_set read_fds;
+        FD_ZERO(&read_fds);
+        FD_SET(server_fd, &read_fds);
+        
+        int activity = select(server_fd + 1, &read_fds, NULL, NULL, NULL);
+        if (activity < 0)
+        {
+            perror("select");
+            continue;
+        }
+
+        if (FD_ISSET(server_fd, &read_fds))
+        {
+            char request[1024];
+            if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
+            {
+                perror("accept");
+                continue;
+            }
+
+            ssize_t bytes_received = recv(client_socket, request, sizeof(request), 0);
+            if (bytes_received < 0) {
+                perror("Failed");
+                close(client_socket);
+                continue;
+            }
+
+            char* request_line_end = strstr(request, "\r\n");
+            if (request_line_end != NULL) {
+                char method[10], url[1024];
+                sscanf(request, "%s %s", method, url);
+
+                if (strcmp(method, "POST") == 0) {
+                    char* body_start = strstr(request, "\r\n\r\n");
+                    if (body_start != NULL) {
+                        body_start += 4;
+                        
+                        HTTP_response response;
+                        char* body=(char*)malloc(sizeof(char) * 1024);
+                        int res = configuration_received(url, body_start, body);
+                        if (res != -1) {
+                            response.status = res;
+                            response.body = body;
+                        }
+                        else {
+                            response.status = 404;
+                        }
+
+                        send_response(client_socket, response);
+                        free(body);
+                    }
+                }
+                else if (strcmp(method,"GET") == 0){
+                        
+                        HTTP_response response;
+                        char* body = (char*)malloc(sizeof(char) * 1024);
+                        int res = get_status_received(url, body);
+
+                        if (res != -1) {
+                            response.status = res;
+                            response.body = body;
+                        }
+                        else {
+                            response.status = 404;
+                        }
+
+                        send_response(client_socket, response);
+                        free(body);
+                }
+                else {
+                    const char* response = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+                    send(client_socket, response, strlen(response), 0);
+                }
+            }
+
+            close(client_socket);
+        }
+    }
+
+    /*
+    while (1)
+    {
+        char request[1024];
+        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
+        {
             perror("accept");
             continue;
         }
 
-        handle_request(client_socket);
-    }
-}
+        ssize_t bytes_received = recv(client_socket, request, sizeof(request), 0);
+        if (bytes_received < 0) {
+            perror("Failed");
+            close(client_socket);
+            continue;
+        }
 
-int main() {
-    create_server();
-    printf("Server listening on port %d\n", SOCKET_PORT);
-    accept_connections();
-    return 0;
+        char* request_line_end = strstr(request, "\r\n");
+        if (request_line_end != NULL) {
+
+            char method[10], url[1024];
+            sscanf(request, "%s %s", method, url);
+
+
+            if (strcmp(method, "POST") == 0) {
+                char* body_start = strstr(request, "\r\n\r\n");
+                if (body_start != NULL) {
+                    body_start += 4;
+                    handle_post_request(client_socket, url, body_start);
+                }
+            }
+            else if(strcmp(method,"GET") == 0){
+                handle_get_request(client_socket, url);
+            }
+            else {
+                const char* response = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+                send(client_socket, response, strlen(response), 0);
+            }
+        }
+
+        close(client_socket);
+    }
+    */
 }

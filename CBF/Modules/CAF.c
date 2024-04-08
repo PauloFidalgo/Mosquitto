@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "utils.h"
+#include "requests.h"
 
 struct mosquitto *mosq = NULL;
 bool start = false;

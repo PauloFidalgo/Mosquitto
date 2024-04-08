@@ -8,12 +8,39 @@
 #include <sys/time.h>
 #include "cJSON.h"
 
-void create_json(char **json_data, char *current_time, char *publisher, char *payload);
+enum acknowledge {success, invalid_values, module_offline,unknown};
+enum acknowledge acknowledge_from_string(const char* str);
+const char* acknowledge_to_string(enum acknowledge ack);
+
 char *get_current_time();
-void parse_json(char* json_data, char** timestamp, char** publisher, char** payload);
-void get_payload_from_json(char* json_data, char** payload);
-void create_lis_setup_json(char* json_data, char** placement, char** radio_communication_setup, char** radio_communication_feedback, char** radio_sensing_setup, char** pre_configured_beam, char** custom_phase_profile, char** source_angle, char** destination_angle, char** beam_width, char** time_step, char** sensing_custom_phase_profile);
-void create_ctcf_setup_json(char* json_data, char** rule_name, char** traffic_type, char** action, char** destination, char** priority, char** total_packets, char** packet_loss, char** latency, char** band_width_usage);
-void create_cmlf_setup_json(char* json_data, char** session_id, char** status, char** );
+void create_json(char **json_data, char *current_time, char *publisher, char *payload);
+void parse_json(char *json_data, char **timestamp, char **publisher, char **payload);
+void get_payload_from_json(char *json_data, char **payload);
+void create_gnb_placement_json(char **json_data, char *x, char *y, char *z);
+void parse_gnb_placement_json(char *json_data, char **x, char **y, char **z);
+void create_gnb_radio_sensing_json(char **json_data, char *periodicity, char *iq_samples);
+void parse_gnb_radio_sensing_json(char *json_data, char **periodicity, char **iq_samples);
+void create_gnb_band_configuration_json(char **json_data, char *band, char *ssbArfcn, char *pointAArfcn);
+void parse_gnb_band_configuration_json(char *json_data, char **band, char **ssbArfcn, char **pointAArfcn);
+void create_gnb_ru_json(char **json_data, char *band_configuration, char *band_width_mhz, char *tdd_configuration, char *logical_ant_rx, char *logical_ant_tx);
+void parse_gnb_ru_json(char *json_data, char **band_configuration, char **band_width_mhz, char **tdd_configuration, char **logical_ant_rx, char **logical_ant_tx);
+void create_gnb_f1_json(char **json_data, char *remote_port, char *local_port, char *local_ip, char *remote_ip);
+void parse_gnb_f1_json(char *json_data, char **remote_port, char **local_port, char **local_ip, char **remote_ip);
+void create_gnb_o_cu_json(char **json_data, char *cn, char *f1);
+void parse_gnb_o_cu_json(char *json_data, char **cn, char **f1);
+void create_gnb_o_du_json(char **json_data, char *f1, char *ru, char *t_7_2);
+void parse_gnb_o_du_json(char *json_data, char **f1, char **ru, char **t_7_2);
+void create_gnb_o_ru_json(char **json_data, char *t_7_2, char *ru);
+void parse_gnb_o_ru_json(char *json_data, char **t_7_2, char **ru);
+void create_gnb_config_json(char **json_data, char *o_cu, char *o_du, char *o_ru, char *gnb_placement, char *gnb_radio_sensing);
+void parse_gnb_config_json(char *json_data, char **o_cu, char **o_du, char **o_ru, char **gnb_placement, char **gnb_radio_sensing);
+void create_gnb_cn_json(char **json_data, char *data1, char *data2);
+void parse_gnb_7_2_json(char *json_data, char **data1, char **data2);
+void create_gnb_7_2_json(char **json_data, char *data1, char *data2);
+void parse_gnb_7_2_json(char *json_data, char **data1, char **data2);
+void create_gnb_telemetry_json(char **json_data, char *rssi, char *rsrp, char *rsrq, char *phr, char *sinr, char *cqi, char *mcs, char *bler, char *bitrate, char *ri);
+void parse_gnb_telemetry_json(char* json_data, char** rssi, char** rsrp, char** rsrq, char** phr, char** sinr, char** cqi, char** mcs, char** bler, char** bitrate, char** ri);
+
 
 #endif /* _UTILS_H_ */
+
